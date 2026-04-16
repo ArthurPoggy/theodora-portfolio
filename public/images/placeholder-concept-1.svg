@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600">
+  <rect width="600" height="600" fill="#1a1a1a"/>
+  <rect x="20" y="20" width="560" height="560" fill="#c0643c" opacity="0.3" rx="8"/>
+  <text x="300" y="280" font-family="Georgia" font-size="80" fill="#c0643c" text-anchor="middle" dominant-baseline="middle" font-weight="bold">CA</text>
+  <text x="300" y="360" font-family="Georgia" font-size="28" fill="#ffffff" text-anchor="middle" opacity="0.6">placeholder</text>
+</svg>
