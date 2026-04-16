@@ -11,16 +11,16 @@ const ROW_ONE = [
   { src: '/images/placeholder-3d-1.svg', alt: 'Modelagem 3D', href: '/modelagem-3d', category: 'Modelagem 3D' },
   { src: '/images/placeholder-ilustracao-1.svg', alt: 'Ilustração', href: '/ilustracoes', category: 'Ilustrações' },
   { src: '/images/placeholder-concept-1.svg', alt: 'Concept Art', href: '/concept-art', category: 'Concept Art' },
-  { src: '/images/placeholder-branding-1.svg', alt: 'Branding', href: '/branding', category: 'Branding' },
   { src: '/images/placeholder-fisico-1.svg', alt: 'Trabalho Físico', href: '/trabalhos-fisicos', category: 'Trabalhos Físicos' },
+  { src: '/images/placeholder-3d-2.svg', alt: 'Modelagem 3D', href: '/modelagem-3d', category: 'Modelagem 3D' },
 ]
 
 const ROW_TWO = [
-  { src: '/images/placeholder-3d-2.svg', alt: 'Modelagem 3D', href: '/modelagem-3d', category: 'Modelagem 3D' },
   { src: '/images/placeholder-concept-2.svg', alt: 'Concept Art', href: '/concept-art', category: 'Concept Art' },
-  { src: '/images/placeholder-branding-2.svg', alt: 'Branding', href: '/branding', category: 'Branding' },
   { src: '/images/placeholder-ilustracao-2.svg', alt: 'Ilustração', href: '/ilustracoes', category: 'Ilustrações' },
   { src: '/images/placeholder-fisico-2.svg', alt: 'Trabalho Físico', href: '/trabalhos-fisicos', category: 'Trabalhos Físicos' },
+  { src: '/images/placeholder-concept-3.svg', alt: 'Concept Art', href: '/concept-art', category: 'Concept Art' },
+  { src: '/images/placeholder-3d-3.svg', alt: 'Modelagem 3D', href: '/modelagem-3d', category: 'Modelagem 3D' },
 ]
 
 // Links das páginas para os botões de navegação sobre as imagens
@@ -28,7 +28,6 @@ const GALLERY_PAGES = [
   { href: '/modelagem-3d', label: 'Modelagem 3D' },
   { href: '/ilustracoes', label: 'Ilustrações' },
   { href: '/concept-art', label: 'Concept Art' },
-  { href: '/branding', label: 'Branding Jobs' },
   { href: '/trabalhos-fisicos', label: 'Trabalhos Físicos' },
 ]
 
@@ -68,7 +67,7 @@ export default function HomePage() {
           className="max-w-xl text-center lg:text-left"
         >
           <h1 className="font-display text-5xl lg:text-6xl font-bold text-foreground mb-2">
-            by.TheodoraD
+            By Theodora D
           </h1>
           <p className="text-accent text-sm font-medium tracking-widest uppercase mb-6">
             Artista Visual

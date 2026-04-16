@@ -30,7 +30,7 @@ export default function MarqueeGallery({ items, direction = 'left' }: MarqueeGal
 
 function MarqueeCard({ item }: { item: MarqueeItem }) {
   return (
-    <Link href={item.href} className="group relative flex-shrink-0 w-64 h-48 rounded-lg overflow-hidden bg-bg-card block">
+    <Link href={item.href} className="group relative flex-shrink-0 w-64 h-48 rounded-2xl overflow-hidden bg-bg-card block">
       {/* Imagem */}
       <Image
         src={item.src}

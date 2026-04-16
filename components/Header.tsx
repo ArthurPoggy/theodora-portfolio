@@ -8,7 +8,6 @@ const NAV_LINKS = [
   { href: '/modelagem-3d', label: 'Modelagem 3D' },
   { href: '/ilustracoes', label: 'Ilustrações' },
   { href: '/concept-art', label: 'Concept Art' },
-  { href: '/branding', label: 'Branding' },
   { href: '/trabalhos-fisicos', label: 'Trabalhos Físicos' },
   { href: '/sobre', label: 'Sobre' },
 ]
@@ -41,7 +40,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
         {/* Logo / nome */}
         <Link href="/" className="font-display text-accent text-xl font-bold tracking-widest hover:opacity-80 transition-opacity flex-shrink-0">
-          by.TheodoraD
+          By Theodora D
         </Link>
 
         {/* Nav desktop */}
@@ -68,21 +67,21 @@ export default function Header() {
         {/* Links sociais + botão contato */}
         <div className="hidden lg:flex items-center gap-3">
           <motion.a
-            href="https://linkedin.com" target="_blank" rel="noopener noreferrer"
+            href="https://www.linkedin.com/in/theodora-dedeski/" target="_blank" rel="noopener noreferrer"
             className="text-foreground-muted hover:text-accent transition-colors"
             whileHover={{ scale: 1.15 }} title="LinkedIn"
           >
             <LinkedInIcon />
           </motion.a>
           <motion.a
-            href="https://bsky.app" target="_blank" rel="noopener noreferrer"
+            href="https://bsky.app/profile/theodora-com-th.bsky.social" target="_blank" rel="noopener noreferrer"
             className="text-foreground-muted hover:text-accent transition-colors"
             whileHover={{ scale: 1.15 }} title="BlueSky"
           >
             <BlueSkyIcon />
           </motion.a>
           <motion.a
-            href="https://itch.io" target="_blank" rel="noopener noreferrer"
+            href="https://by-theodora-d.itch.io/" target="_blank" rel="noopener noreferrer"
             className="text-foreground-muted hover:text-accent transition-colors"
             whileHover={{ scale: 1.15 }} title="Itch.io"
           >
@@ -147,9 +146,9 @@ export default function Header() {
                 Contato
               </Link>
               <div className="flex items-center gap-4 mt-3 px-3 pb-2">
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent"><LinkedInIcon /></a>
-                <a href="https://bsky.app" target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent"><BlueSkyIcon /></a>
-                <a href="https://itch.io" target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent"><ItchIcon /></a>
+                <a href="https://www.linkedin.com/in/theodora-dedeski/" target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent"><LinkedInIcon /></a>
+                <a href="https://bsky.app/profile/theodora-com-th.bsky.social" target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent"><BlueSkyIcon /></a>
+                <a href="https://by-theodora-d.itch.io/" target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent"><ItchIcon /></a>
               </div>
             </nav>
           </motion.div>

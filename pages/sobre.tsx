@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 const SKILLS = [
   'Modelagem 3D', 'Ilustração Digital', 'Concept Art', 'Identidade Visual',
   'Pintura Tradicional', 'Aquarela', 'Character Design', 'Environment Design',
-  'Adobe Illustrator', 'Photoshop', 'Blender', 'Procreate',
+  'Adobe Illustrator', 'Photoshop', 'Blender', 'Procreate', 'Clip Studio Paint PRO',
 ]
 
 export default function SobrePage() {
@@ -60,8 +60,8 @@ export default function SobrePage() {
           transition={{ duration: 0.6, delay: 0.15 }}
           className="flex-1"
         >
-          <h2 className="font-display text-3xl text-foreground mb-2">Olá, sou Theodora!</h2>
-          <p className="text-accent text-sm tracking-widest uppercase mb-6">Artista Visual & Designer</p>
+          <h2 className="font-display text-3xl text-foreground mb-2">Olá, sou Theodora D!</h2>
+          <p className="text-accent text-sm tracking-widest uppercase mb-6">Artista Visual</p>
 
           <div className="space-y-4 text-foreground-muted leading-relaxed text-sm">
             <p>

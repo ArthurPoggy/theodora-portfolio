@@ -19,7 +19,7 @@ const config: Config = {
           dark: '#a8872e',
         },
         foreground: {
-          DEFAULT: '#f5f5f5',
+          DEFAULT: '#f5feff',
           muted: '#a0a0a0',
         },
       },

@@ -26,7 +26,7 @@ export default function ImageGrid({ images }: ImageGridProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: (idx % 6) * 0.07 }}
-            className="group relative overflow-hidden rounded-xl bg-bg-card cursor-pointer break-inside-avoid"
+            className="group relative overflow-hidden rounded-3xl bg-bg-card cursor-pointer break-inside-avoid"
             onClick={() => setLightbox(img)}
             whileHover={{ scale: 1.03 }}
           >
@@ -40,9 +40,9 @@ export default function ImageGrid({ images }: ImageGridProps) {
               />
             </div>
             {/* Overlay sutil */}
-            <div className="absolute inset-0 border-2 border-transparent group-hover:border-accent/50 rounded-xl transition-all duration-300 pointer-events-none" />
-            {/* Sombra dourada no hover */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl shadow-[0_0_20px_rgba(201,168,76,0.25)] pointer-events-none" />
+            <div className="absolute inset-0 border-2 border-transparent group-hover:border-accent/50 rounded-3xl transition-all duration-300 pointer-events-none" />
+            {/* Sombra colorida no hover */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl shadow-[0_0_20px_rgba(139,232,248,0.25)] pointer-events-none" />
           </motion.div>
         ))}
       </div>
