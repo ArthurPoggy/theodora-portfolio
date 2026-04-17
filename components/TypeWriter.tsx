@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { useInView } from 'framer-motion'
 
 interface TypeWriterProps {
   text: string
@@ -15,19 +14,21 @@ export default function TypeWriter({
   speed = 60,
 }: TypeWriterProps) {
   const [displayed, setDisplayed] = useState('')
-  const [started, setStarted] = useState(false)
   const [done, setDone] = useState(false)
-
-  const ref = useRef<HTMLSpanElement>(null)
-  const isInView = useInView(ref, { once: true })
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    if (!isInView || started) return
-    setStarted(true)
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
+    let index = 0
+    setDisplayed('')
+    setDone(false)
 
     const startTimeout = setTimeout(() => {
-      let index = 0
-
       const interval = setInterval(() => {
         index += 1
         setDisplayed(text.slice(0, index))
@@ -42,10 +43,12 @@ export default function TypeWriter({
     }, delay)
 
     return () => clearTimeout(startTimeout)
-  }, [isInView, started, text, delay, speed])
+  }, [mounted, text, delay, speed])
+
+  if (!mounted) return <span className={className}>{text}</span>
 
   return (
-    <span ref={ref} className={className}>
+    <span className={className}>
       {displayed}
       {!done && (
         <span
