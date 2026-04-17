@@ -24,8 +24,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ['Playfair Display', 'Georgia', 'serif'],
-        body: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Courier Prime', 'Courier New', 'monospace'],
+        body: ['Patrick Hand', 'cursive', 'sans-serif'],
+        mono: ['Courier Prime', 'monospace'],
       },
       animation: {
         'scroll-left': 'scrollLeft 30s linear infinite',

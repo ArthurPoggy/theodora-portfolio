@@ -1,12 +1,12 @@
 import Layout from '@/components/Layout'
 import MarqueeGallery from '@/components/MarqueeGallery'
 import Testimonials from '@/components/Testimonials'
+import Win98Window from '@/components/Win98Window'
+import TypeWriter from '@/components/TypeWriter'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 
-// Itens do carrossel — cada item representa uma obra de uma categoria
-// Adicionar imagens reais em public/images/ e atualizar os caminhos abaixo
 const ROW_ONE = [
   { src: '/images/placeholder-3d-1.svg', alt: 'Modelagem 3D', href: '/modelagem-3d', category: 'Modelagem 3D' },
   { src: '/images/placeholder-ilustracao-1.svg', alt: 'Ilustração', href: '/ilustracoes', category: 'Ilustrações' },
@@ -23,101 +23,111 @@ const ROW_TWO = [
   { src: '/images/placeholder-3d-3.svg', alt: 'Modelagem 3D', href: '/modelagem-3d', category: 'Modelagem 3D' },
 ]
 
-// Links das páginas para os botões de navegação sobre as imagens
 const GALLERY_PAGES = [
   { href: '/modelagem-3d', label: 'Modelagem 3D' },
   { href: '/ilustracoes', label: 'Ilustrações' },
   { href: '/concept-art', label: 'Concept Art' },
+  { href: '/animacoes', label: 'Animações' },
   { href: '/trabalhos-fisicos', label: 'Trabalhos Físicos' },
+  { href: '/encomendados', label: 'Encomendados' },
 ]
 
 export default function HomePage() {
   return (
     <Layout
       title="Home"
-      description="Portfolio de by.TheodoraD — artista visual especializada em modelagem 3D, ilustrações, concept art e branding."
+      description="Portfolio de By Theodora D — artista visual especializada em modelagem 3D, ilustrações, concept art e animações."
     >
-      {/* ── HERO ── */}
-      <section className="flex flex-col lg:flex-row items-center justify-center gap-12 px-6 py-20 max-w-7xl mx-auto">
-        {/* Foto da artista */}
+      {/* ── HERO em janela Windows 98 ── */}
+      <section className="px-4 sm:px-6 py-12 max-w-5xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.7 }}
-          className="relative w-64 h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border-2 border-accent/40 flex-shrink-0"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="w-full"
         >
-          <Image
-            src="/images/artista.svg"
-            alt="by.TheodoraD"
-            fill
-            className="object-cover"
-            priority
-          />
-          {/* Fallback colorido enquanto sem foto */}
-          <div className="absolute inset-0 bg-gradient-to-br from-bg-card to-accent/20 flex items-center justify-center">
-            <span className="font-display text-accent text-6xl font-bold select-none">T</span>
-          </div>
-        </motion.div>
+          <Win98Window title="by_theodora_d.exe" className="w-full">
+            <div className="bg-bg flex flex-col lg:flex-row items-center gap-10 p-8">
+              {/* Foto */}
+              <div className="relative w-56 h-56 lg:w-72 lg:h-72 rounded-xl overflow-hidden border-2 border-accent/40 flex-shrink-0">
+                <Image
+                  src="/images/artista.svg"
+                  alt="By Theodora D"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-bg-card to-accent/20 flex items-center justify-center">
+                  <span className="font-display text-accent text-6xl font-bold select-none">T</span>
+                </div>
+              </div>
 
-        {/* Texto */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="max-w-xl text-center lg:text-left"
-        >
-          <h1 className="font-display text-5xl lg:text-6xl font-bold text-foreground mb-2">
-            By Theodora D
-          </h1>
-          <p className="text-accent text-sm font-medium tracking-widest uppercase mb-6">
-            Artista Visual
-          </p>
-          <p className="text-foreground-muted text-base leading-relaxed mb-8">
-            Olá! Sou Theodora, artista visual apaixonada por criar mundos através da modelagem 3D,
-            ilustrações, concept art e identidades visuais. Cada projeto é uma nova aventura criativa.
-          </p>
-          <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-            {GALLERY_PAGES.map(({ href, label }) => (
-              <motion.div key={href} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-                <Link
-                  href={href}
-                  className="px-4 py-2 border border-accent/40 text-accent text-sm rounded hover:bg-accent hover:text-bg transition-all duration-200"
-                >
-                  {label}
-                </Link>
-              </motion.div>
-            ))}
-          </div>
+              {/* Texto */}
+              <div className="flex-1 text-center lg:text-left">
+                <h1 className="font-display text-4xl lg:text-5xl font-bold text-foreground mb-2">
+                  <TypeWriter text="By Theodora D" speed={80} />
+                </h1>
+                <p className="text-accent text-sm font-medium tracking-widest uppercase mb-5">
+                  <TypeWriter text="Artista Visual" delay={1200} speed={60} />
+                </p>
+                <p className="text-foreground-muted text-base leading-relaxed mb-7">
+                  Olá! Sou Theodora, artista visual apaixonada por criar mundos através da modelagem 3D,
+                  ilustrações, concept art e animações. Cada projeto é uma nova aventura criativa.
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                  {GALLERY_PAGES.map(({ href, label }) => (
+                    <motion.div key={href} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+                      <Link
+                        href={href}
+                        className="px-3 py-1.5 border border-accent/40 text-accent text-sm rounded hover:bg-accent hover:text-bg transition-all duration-200"
+                      >
+                        {label}
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Win98Window>
         </motion.div>
       </section>
 
-      {/* ── GALERIA MARQUEE ── */}
-      <section className="py-12 overflow-hidden">
-        <motion.h2
+      {/* ── GALERIA MARQUEE em janela Windows 98 ── */}
+      <section className="px-4 sm:px-6 py-6 max-w-5xl mx-auto">
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="font-display text-2xl text-center text-foreground mb-8 px-6"
         >
-          Trabalhos em destaque
-        </motion.h2>
+          <Win98Window title="galeria_trabalhos.exe" className="w-full">
+            <div className="bg-bg py-6 relative">
+              {/* Cursor decorativo estático no canto superior direito */}
+              <div className="absolute top-2 right-4 select-none pointer-events-none opacity-50">
+                <svg width="20" height="28" viewBox="0 0 20 28" fill="white">
+                  <path d="M0 0L0 20L5 15L8 22L10 21L7 14L13 14Z" />
+                </svg>
+              </div>
 
-        {/* Fileira 1 — desliza para a esquerda */}
-        <div className="mb-4">
-          <MarqueeGallery items={ROW_ONE} direction="left" />
-        </div>
+              <h2 className="font-display text-xl text-center text-foreground mb-6 px-6">
+                Trabalhos em destaque
+              </h2>
 
-        {/* Fileira 2 — desliza para a direita */}
-        <div>
-          <MarqueeGallery items={ROW_TWO} direction="right" />
-        </div>
+              {/* Fileira 1 — esquerda */}
+              <div className="mb-4">
+                <MarqueeGallery items={ROW_ONE} direction="left" />
+              </div>
+              {/* Fileira 2 — direita */}
+              <MarqueeGallery items={ROW_TWO} direction="right" />
+            </div>
+          </Win98Window>
+        </motion.div>
       </section>
 
       {/* ── DEPOIMENTOS ── */}
       <Testimonials />
 
       {/* ── CTA CONTATO ── */}
-      <section className="py-20 px-6 text-center bg-bg-card mt-8">
+      <section className="py-16 px-6 text-center bg-bg-card mt-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

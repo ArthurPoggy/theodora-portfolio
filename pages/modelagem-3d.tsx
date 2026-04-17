@@ -1,6 +1,7 @@
 import Layout from '@/components/Layout'
 import ImageGrid, { GalleryImage } from '@/components/ImageGrid'
 import { motion } from 'framer-motion'
+import TypeWriter from '@/components/TypeWriter'
 
 // Adicionar imagens reais em public/images/3d/ e atualizar este array
 const IMAGES: GalleryImage[] = [
@@ -22,7 +23,7 @@ export default function Modelagem3DPage() {
           transition={{ duration: 0.5 }}
           className="font-display text-5xl font-bold text-foreground mb-3"
         >
-          Modelagem 3D
+          <TypeWriter text="Modelagem 3D" />
         </motion.h1>
         <motion.div
           initial={{ scaleX: 0 }}

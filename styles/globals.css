@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Patrick+Hand&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,7 +12,6 @@
   --color-muted: #a0a0a0;
 }
 
-/* Custom cursor — será substituído quando cursor.png estiver disponível */
 * {
   box-sizing: border-box;
 }
@@ -24,63 +23,31 @@ html {
 body {
   background-color: var(--color-bg);
   color: var(--color-foreground);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Patrick Hand', cursive, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 /* Scrollbar customizada */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-bg-card);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-accent);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #dfc07a;
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg-card); }
+::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #dfc07a; }
 
 /* Seleção de texto */
-::selection {
-  background: var(--color-accent);
-  color: #0f0f0f;
-}
+::selection { background: var(--color-accent); color: #0f0f0f; }
 
-/* Marquee — wrapper sem overflow */
-.marquee-wrapper {
-  overflow: hidden;
-  width: 100%;
-  position: relative;
-}
-
-.marquee-track {
-  display: flex;
-  gap: 1rem;
-  width: max-content;
-}
-
-.marquee-track-left {
-  animation: scrollLeft 35s linear infinite;
-}
-
-.marquee-track-right {
-  animation: scrollRight 35s linear infinite;
-}
-
-.marquee-track-left:hover,
-.marquee-track-right:hover {
-  animation-play-state: paused;
-}
+/* Marquee */
+.marquee-wrapper { overflow: hidden; width: 100%; position: relative; }
+.marquee-track { display: flex; gap: 1rem; width: max-content; }
+.marquee-track-left { animation: scrollLeft 35s linear infinite; }
+.marquee-track-right { animation: scrollRight 35s linear infinite; }
+.marquee-track-left:hover, .marquee-track-right:hover { animation-play-state: paused; }
 
 @keyframes scrollLeft {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
-
 @keyframes scrollRight {
   0%   { transform: translateX(-50%); }
   100% { transform: translateX(0); }
@@ -88,26 +55,58 @@ body {
 
 /* Lightbox overlay */
 .lightbox-overlay {
-  position: fixed;
-  inset: 0;
+  position: fixed; inset: 0;
   background: rgba(0, 0, 0, 0.92);
   z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
 }
 
 /* Page transition */
-.page-transition {
-  animation: fadeIn 0.4s ease-in-out;
-}
+.page-transition { animation: fadeIn 0.4s ease-in-out; }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Classe utilitária para o nome da artista */
-.font-display {
-  font-family: 'Playfair Display', Georgia, serif;
+/* Fontes utilitárias */
+.font-display { font-family: 'Courier Prime', 'Courier New', monospace; }
+.font-body    { font-family: 'Patrick Hand', cursive, sans-serif; }
+
+/* Sparkle animation */
+@keyframes sparkle-pulse {
+  0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+  30%  { opacity: 1; transform: scale(1) rotate(45deg); }
+  70%  { opacity: 1; transform: scale(1) rotate(90deg); }
+  100% { opacity: 0; transform: scale(0) rotate(135deg); }
 }
+
+/* Background fixo — ativo quando a artista mandar a imagem */
+.site-bg-image {
+  background-image: url('/images/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* Scroll horizontal tipo ArtStation */
+.artstation-scroll {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.artstation-scroll::-webkit-scrollbar { height: 4px; }
+.artstation-scroll::-webkit-scrollbar-track { background: var(--color-bg-card); }
+.artstation-scroll::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 2px; }
+
+.artstation-scroll > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* Music player progress */
+.music-progress { cursor: pointer; }

@@ -8,7 +8,9 @@ const NAV_LINKS = [
   { href: '/modelagem-3d', label: 'Modelagem 3D' },
   { href: '/ilustracoes', label: 'Ilustrações' },
   { href: '/concept-art', label: 'Concept Art' },
+  { href: '/animacoes', label: 'Animações' },
   { href: '/trabalhos-fisicos', label: 'Trabalhos Físicos' },
+  { href: '/encomendados', label: 'Encomendados' },
   { href: '/sobre', label: 'Sobre' },
 ]
 

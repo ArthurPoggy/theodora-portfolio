@@ -1,6 +1,7 @@
 import Layout from '@/components/Layout'
 import ImageGrid, { GalleryImage } from '@/components/ImageGrid'
 import { motion } from 'framer-motion'
+import TypeWriter from '@/components/TypeWriter'
 
 const IMAGES: GalleryImage[] = [
   { src: '/images/placeholder-branding-1.svg', alt: 'Branding - Projeto 1' },
@@ -21,7 +22,7 @@ export default function BrandingPage() {
           transition={{ duration: 0.5 }}
           className="font-display text-5xl font-bold text-foreground mb-3"
         >
-          Branding Jobs
+          <TypeWriter text="Branding Jobs" />
         </motion.h1>
         <motion.div
           initial={{ scaleX: 0 }}

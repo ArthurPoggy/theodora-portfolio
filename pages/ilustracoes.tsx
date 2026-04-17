@@ -1,6 +1,7 @@
 import Layout from '@/components/Layout'
 import ImageGrid, { GalleryImage } from '@/components/ImageGrid'
 import { motion } from 'framer-motion'
+import TypeWriter from '@/components/TypeWriter'
 
 const IMAGES: GalleryImage[] = [
   { src: '/images/placeholder-ilustracao-1.svg', alt: 'Ilustração - Obra 1' },
@@ -21,7 +22,7 @@ export default function IlustracoesPage() {
           transition={{ duration: 0.5 }}
           className="font-display text-5xl font-bold text-foreground mb-3"
         >
-          Ilustrações
+          <TypeWriter text="Ilustrações" />
         </motion.h1>
         <motion.div
           initial={{ scaleX: 0 }}
