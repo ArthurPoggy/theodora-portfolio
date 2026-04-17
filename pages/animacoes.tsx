@@ -1,5 +1,6 @@
 import Layout from '@/components/Layout'
 import ImageGrid, { GalleryImage } from '@/components/ImageGrid'
+import TypeWriter from '@/components/TypeWriter'
 import { motion } from 'framer-motion'
 
 const GIFS: GalleryImage[] = [
@@ -24,7 +25,7 @@ export default function AnimacoesPage() {
           transition={{ duration: 0.5 }}
           className="font-display text-5xl font-bold text-foreground mb-3"
         >
-          Animações
+          <TypeWriter text="Animações" />
         </motion.h1>
         <motion.div
           initial={{ scaleX: 0 }}

@@ -1,5 +1,6 @@
 import Layout from '@/components/Layout'
 import ImageGrid, { GalleryImage } from '@/components/ImageGrid'
+import TypeWriter from '@/components/TypeWriter'
 import { motion } from 'framer-motion'
 
 const IMAGES: GalleryImage[] = [
@@ -21,7 +22,7 @@ export default function EncomendadosPage() {
           transition={{ duration: 0.5 }}
           className="font-display text-5xl font-bold text-foreground mb-3"
         >
-          Encomendados
+          <TypeWriter text="Encomendados" />
         </motion.h1>
         <motion.div
           initial={{ scaleX: 0 }}
