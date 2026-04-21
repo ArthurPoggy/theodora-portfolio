@@ -65,7 +65,7 @@ export default function HomePage() {
               {/* Texto */}
               <div className="flex-1 text-center lg:text-left">
                 <h1 className="font-display text-4xl lg:text-5xl font-bold text-foreground mb-2">
-                  <TypeWriter text="By Theodora D" speed={80} />
+                  <TypeWriter text="By Theodora D." speed={80} />
                 </h1>
                 <p className="text-accent text-sm font-medium tracking-widest uppercase mb-5">
                   <TypeWriter text="Artista Visual" delay={1200} speed={60} />

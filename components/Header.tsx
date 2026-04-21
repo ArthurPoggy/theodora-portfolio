@@ -42,7 +42,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
         {/* Logo / nome */}
         <Link href="/" className="font-display text-accent text-xl font-bold tracking-widest hover:opacity-80 transition-opacity flex-shrink-0">
-          By Theodora D
+          By Theodora D.
         </Link>
 
         {/* Nav desktop */}

@@ -4,9 +4,9 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 
 const SKILLS = [
-  'Modelagem 3D', 'Ilustração Digital', 'Concept Art', 'Identidade Visual',
-  'Pintura Tradicional', 'Aquarela', 'Character Design', 'Environment Design',
-  'Adobe Illustrator', 'Photoshop', 'Blender', 'Procreate', 'Clip Studio Paint PRO',
+  'Modelagem 3D', 'Ilustração Digital', 'Concept Art',
+  'Character Design', 'Environment Design',
+  'Adobe Illustrator', 'Photoshop', 'Blender', 'Clip Studio Paint PRO',
 ]
 
 export default function SobrePage() {
@@ -18,7 +18,7 @@ export default function SobrePage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="font-display text-5xl font-bold text-foreground mb-3"
+          className="font-display text-5xl font-bold text-foreground mb-6"
         >
           Sobre a Artista
         </motion.h1>

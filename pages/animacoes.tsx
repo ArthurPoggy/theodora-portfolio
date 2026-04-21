@@ -10,9 +10,14 @@ const GIFS: GalleryImage[] = [
   { src: '/images/placeholder-concept-1.svg', alt: 'GIF - Animação 4' },
 ]
 
-const VIDEOS: Array<{ title: string; youtubeId: string }> = [
-  { title: 'Animação 1', youtubeId: 'dQw4w9WgXcQ' },
-  { title: 'Animação 2', youtubeId: 'dQw4w9WgXcQ' },
+type VideoItem =
+  | { type: 'youtube'; title: string; youtubeId: string }
+  | { type: 'mp4'; title: string; src: string }
+
+const VIDEOS: VideoItem[] = [
+  { type: 'youtube', title: 'Animação 1', youtubeId: 'dQw4w9WgXcQ' },
+  { type: 'youtube', title: 'Animação 2', youtubeId: 'dQw4w9WgXcQ' },
+  // Para adicionar MP4: { type: 'mp4', title: 'Nome', src: '/videos/animacao.mp4' }
 ]
 
 export default function AnimacoesPage() {
@@ -23,7 +28,7 @@ export default function AnimacoesPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="font-display text-5xl font-bold text-foreground mb-3"
+          className="font-display text-5xl font-bold text-foreground mb-6"
         >
           <TypeWriter text="Animações" />
         </motion.h1>
@@ -31,7 +36,7 @@ export default function AnimacoesPage() {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="h-0.5 w-24 bg-accent mx-auto"
+          className="h-0.5 w-24 bg-accent mx-auto mb-8"
         />
       </section>
 
@@ -71,13 +76,22 @@ export default function AnimacoesPage() {
               className="flex flex-col gap-3"
             >
               <div className="aspect-video w-full rounded-2xl overflow-hidden bg-bg-card border border-bg-card">
-                <iframe
-                  src={`https://www.youtube.com/embed/${video.youtubeId}`}
-                  title={video.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full"
-                />
+                {video.type === 'youtube' ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${video.youtubeId}`}
+                    title={video.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <video
+                    src={video.src}
+                    title={video.title}
+                    controls
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
               <p className="text-foreground-muted text-sm text-center">{video.title}</p>
             </motion.div>

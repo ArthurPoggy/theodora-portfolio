@@ -34,7 +34,7 @@ export default function ConceptArtPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="font-display text-5xl font-bold text-foreground mb-3"
+          className="font-display text-5xl font-bold text-foreground mb-6"
         >
           <TypeWriter text="Concept Art" />
         </motion.h1>

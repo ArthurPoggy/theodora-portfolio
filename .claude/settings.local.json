@@ -9,7 +9,16 @@
       "Bash(npm install *)",
       "Bash(npx tsc *)",
       "Bash(npm run *)",
-      "Bash(gh *)"
+      "Bash(gh *)",
+      "Bash(python -c \"import markdown; print\\('ok'\\)\")",
+      "Bash(python -c \"import reportlab; print\\('ok'\\)\")",
+      "Bash(python -c \"import weasyprint; print\\('ok'\\)\")",
+      "Bash(python gerar_pdf.py)",
+      "Bash(python -c \"import os; s=os.path.getsize\\('SUGESTOES_PENDENTES.pdf'\\); print\\(f'{s/1024:.1f} KB'\\)\")",
+      "Bash(del gerar_pdf.py)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }

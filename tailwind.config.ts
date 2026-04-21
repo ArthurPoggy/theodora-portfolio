@@ -14,9 +14,9 @@ const config: Config = {
           hover: '#222222',
         },
         accent: {
-          DEFAULT: '#c9a84c',
-          light: '#dfc07a',
-          dark: '#a8872e',
+          DEFAULT: '#b49cfd',
+          light: '#cfc0fe',
+          dark: '#9275e0',
         },
         foreground: {
           DEFAULT: '#f5feff',

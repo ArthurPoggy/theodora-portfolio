@@ -8,7 +8,7 @@ export default function Footer() {
     <footer className="w-full border-t border-bg-card bg-bg py-4 px-6 mt-auto">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-foreground-muted text-sm">
         <span className="font-display text-accent font-bold tracking-widest text-base">
-          By Theodora D
+          By Theodora D.
         </span>
         <a
           href={`mailto:${email}`}

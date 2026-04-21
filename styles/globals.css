@@ -7,7 +7,7 @@
 :root {
   --color-bg: #0f0f0f;
   --color-bg-card: #1a1a1a;
-  --color-accent: #c9a84c;
+  --color-accent: #b49cfd;
   --color-foreground: #f5feff;
   --color-muted: #a0a0a0;
 }
@@ -24,6 +24,7 @@ body {
   background-color: var(--color-bg);
   color: var(--color-foreground);
   font-family: 'Patrick Hand', cursive, sans-serif;
+  font-size: 1.0625rem;
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -32,7 +33,7 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--color-bg-card); }
 ::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #dfc07a; }
+::-webkit-scrollbar-thumb:hover { background: #cfc0fe; }
 
 /* Seleção de texto */
 ::selection { background: var(--color-accent); color: #0f0f0f; }

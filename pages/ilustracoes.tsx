@@ -20,7 +20,7 @@ export default function IlustracoesPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="font-display text-5xl font-bold text-foreground mb-3"
+          className="font-display text-5xl font-bold text-foreground mb-6"
         >
           <TypeWriter text="Ilustrações" />
         </motion.h1>
@@ -28,7 +28,7 @@ export default function IlustracoesPage() {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="h-0.5 w-24 bg-accent mx-auto"
+          className="h-0.5 w-24 bg-accent mx-auto mb-8"
         />
       </section>
       <ImageGrid images={IMAGES} />
