@@ -109,7 +109,7 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
   }
 
   const load = useCallback(async (sec: Section) => {
-    const key = sec === 'depoimentos' ? 'testimonials' : sec === 'playlist' ? 'tracks' : sec === 'sociais' ? 'social' : sec === 'animacoes' ? 'animations' : sec === 'sobre' ? 'about' : sec
+    const key = sec === 'galerias' ? 'galleries' : sec === 'depoimentos' ? 'testimonials' : sec === 'playlist' ? 'tracks' : sec === 'sociais' ? 'social' : sec === 'animacoes' ? 'animations' : sec === 'sobre' ? 'about' : sec
     try {
       const res = await fetch(`/api/admin/data/${key}`, { credentials: 'include' })
       const json = await res.json()
@@ -127,7 +127,7 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
   useEffect(() => { if (authed) load(section) }, [authed, section, load])
 
   async function save() {
-    const key = section === 'depoimentos' ? 'testimonials' : section === 'playlist' ? 'tracks' : section === 'sociais' ? 'social' : section === 'animacoes' ? 'animations' : section === 'sobre' ? 'about' : section
+    const key = section === 'galerias' ? 'galleries' : section === 'depoimentos' ? 'testimonials' : section === 'playlist' ? 'tracks' : section === 'sociais' ? 'social' : section === 'animacoes' ? 'animations' : section === 'sobre' ? 'about' : section
     const data = sectionDataMap[section]
     if (!data) return
     setSaving(true)
