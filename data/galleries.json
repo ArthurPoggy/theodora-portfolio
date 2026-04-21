@@ -1,0 +1,68 @@
+{
+  "modelagem3d": [
+    { "src": "/images/placeholder-3d-1.svg", "alt": "Modelagem 3D - Obra 1" },
+    { "src": "/images/placeholder-3d-2.svg", "alt": "Modelagem 3D - Obra 2" },
+    { "src": "/images/placeholder-3d-3.svg", "alt": "Modelagem 3D - Obra 3" },
+    { "src": "/images/placeholder-3d-4.svg", "alt": "Modelagem 3D - Obra 4" },
+    { "src": "/images/placeholder-3d-5.svg", "alt": "Modelagem 3D - Obra 5" },
+    { "src": "/images/placeholder-3d-6.svg", "alt": "Modelagem 3D - Obra 6" }
+  ],
+  "ilustracoes": [
+    { "src": "/images/placeholder-ilustracao-1.svg", "alt": "Ilustração - Obra 1" },
+    { "src": "/images/placeholder-ilustracao-2.svg", "alt": "Ilustração - Obra 2" },
+    { "src": "/images/placeholder-ilustracao-3.svg", "alt": "Ilustração - Obra 3" },
+    { "src": "/images/placeholder-ilustracao-4.svg", "alt": "Ilustração - Obra 4" },
+    { "src": "/images/placeholder-ilustracao-5.svg", "alt": "Ilustração - Obra 5" },
+    { "src": "/images/placeholder-ilustracao-6.svg", "alt": "Ilustração - Obra 6" }
+  ],
+  "conceptArt": {
+    "cenario": [
+      { "src": "/images/placeholder-concept-1.svg", "alt": "Cenário - Obra 1" },
+      { "src": "/images/placeholder-concept-2.svg", "alt": "Cenário - Obra 2" },
+      { "src": "/images/placeholder-concept-3.svg", "alt": "Cenário - Obra 3" },
+      { "src": "/images/placeholder-concept-4.svg", "alt": "Cenário - Obra 4" },
+      { "src": "/images/placeholder-concept-5.svg", "alt": "Cenário - Obra 5" },
+      { "src": "/images/placeholder-concept-6.svg", "alt": "Cenário - Obra 6" }
+    ],
+    "personagem": [
+      { "src": "/images/placeholder-ilustracao-1.svg", "alt": "Personagem - Obra 1" },
+      { "src": "/images/placeholder-ilustracao-2.svg", "alt": "Personagem - Obra 2" },
+      { "src": "/images/placeholder-ilustracao-3.svg", "alt": "Personagem - Obra 3" },
+      { "src": "/images/placeholder-ilustracao-4.svg", "alt": "Personagem - Obra 4" },
+      { "src": "/images/placeholder-ilustracao-5.svg", "alt": "Personagem - Obra 5" },
+      { "src": "/images/placeholder-ilustracao-6.svg", "alt": "Personagem - Obra 6" }
+    ]
+  },
+  "trabalhosFisicos": [
+    { "src": "/images/placeholder-fisico-1.svg", "alt": "Trabalho Físico - Obra 1" },
+    { "src": "/images/placeholder-fisico-2.svg", "alt": "Trabalho Físico - Obra 2" },
+    { "src": "/images/placeholder-fisico-3.svg", "alt": "Trabalho Físico - Obra 3" },
+    { "src": "/images/placeholder-fisico-4.svg", "alt": "Trabalho Físico - Obra 4" },
+    { "src": "/images/placeholder-fisico-5.svg", "alt": "Trabalho Físico - Obra 5" },
+    { "src": "/images/placeholder-fisico-6.svg", "alt": "Trabalho Físico - Obra 6" }
+  ],
+  "encomendados": [
+    { "src": "/images/placeholder-ilustracao-1.svg", "alt": "Encomenda - Obra 1" },
+    { "src": "/images/placeholder-ilustracao-2.svg", "alt": "Encomenda - Obra 2" },
+    { "src": "/images/placeholder-ilustracao-3.svg", "alt": "Encomenda - Obra 3" },
+    { "src": "/images/placeholder-ilustracao-4.svg", "alt": "Encomenda - Obra 4" },
+    { "src": "/images/placeholder-ilustracao-5.svg", "alt": "Encomenda - Obra 5" },
+    { "src": "/images/placeholder-ilustracao-6.svg", "alt": "Encomenda - Obra 6" }
+  ],
+  "branding": [
+    { "src": "/images/placeholder-branding-1.svg", "alt": "Branding - Projeto 1" },
+    { "src": "/images/placeholder-branding-2.svg", "alt": "Branding - Projeto 2" },
+    { "src": "/images/placeholder-branding-3.svg", "alt": "Branding - Projeto 3" },
+    { "src": "/images/placeholder-branding-4.svg", "alt": "Branding - Projeto 4" },
+    { "src": "/images/placeholder-branding-5.svg", "alt": "Branding - Projeto 5" },
+    { "src": "/images/placeholder-branding-6.svg", "alt": "Branding - Projeto 6" }
+  ],
+  "nsfw": [
+    { "src": "/images/placeholder-ilustracao-1.svg", "alt": "NSFW - Obra 1" },
+    { "src": "/images/placeholder-ilustracao-2.svg", "alt": "NSFW - Obra 2" },
+    { "src": "/images/placeholder-ilustracao-3.svg", "alt": "NSFW - Obra 3" },
+    { "src": "/images/placeholder-ilustracao-4.svg", "alt": "NSFW - Obra 4" },
+    { "src": "/images/placeholder-ilustracao-5.svg", "alt": "NSFW - Obra 5" },
+    { "src": "/images/placeholder-ilustracao-6.svg", "alt": "NSFW - Obra 6" }
+  ]
+}

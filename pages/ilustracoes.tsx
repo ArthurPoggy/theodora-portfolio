@@ -1,18 +1,19 @@
+import { GetStaticProps } from 'next'
 import Layout from '@/components/Layout'
-import ImageGrid, { GalleryImage } from '@/components/ImageGrid'
-import { motion } from 'framer-motion'
+import ImageGrid from '@/components/ImageGrid'
 import TypeWriter from '@/components/TypeWriter'
+import { motion } from 'framer-motion'
+import type { GalleryImage, GalleriesData } from '@/types/cms'
+import galleriesData from '@/data/galleries.json'
 
-const IMAGES: GalleryImage[] = [
-  { src: '/images/placeholder-ilustracao-1.svg', alt: 'Ilustração - Obra 1' },
-  { src: '/images/placeholder-ilustracao-2.svg', alt: 'Ilustração - Obra 2' },
-  { src: '/images/placeholder-ilustracao-3.svg', alt: 'Ilustração - Obra 3' },
-  { src: '/images/placeholder-ilustracao-4.svg', alt: 'Ilustração - Obra 4' },
-  { src: '/images/placeholder-ilustracao-5.svg', alt: 'Ilustração - Obra 5' },
-  { src: '/images/placeholder-ilustracao-6.svg', alt: 'Ilustração - Obra 6' },
-]
+interface Props { images: GalleryImage[] }
 
-export default function IlustracoesPage() {
+export const getStaticProps: GetStaticProps<Props> = async () => {
+  const data = galleriesData as GalleriesData
+  return { props: { images: data.ilustracoes } }
+}
+
+export default function IlustracoesPage({ images }: Props) {
   return (
     <Layout title="Ilustrações" description="Galeria de ilustrações por by.TheodoraD">
       <section className="pt-14 pb-4 px-6 max-w-7xl mx-auto text-center">
@@ -31,7 +32,7 @@ export default function IlustracoesPage() {
           className="h-0.5 w-24 bg-accent mx-auto mb-8"
         />
       </section>
-      <ImageGrid images={IMAGES} />
+      <ImageGrid images={images} />
     </Layout>
   )
 }

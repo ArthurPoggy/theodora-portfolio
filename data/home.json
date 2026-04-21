@@ -1,0 +1,18 @@
+{
+  "heroText": "By Theodora D.",
+  "heroBio": "Olá! Sou Theodora, artista visual apaixonada por criar mundos através da modelagem 3D, ilustrações, concept art e animações. Cada projeto é uma nova aventura criativa.",
+  "marqueeRow1": [
+    { "src": "/images/placeholder-3d-1.svg", "alt": "Modelagem 3D", "href": "/modelagem-3d", "category": "Modelagem 3D" },
+    { "src": "/images/placeholder-ilustracao-1.svg", "alt": "Ilustração", "href": "/ilustracoes", "category": "Ilustrações" },
+    { "src": "/images/placeholder-concept-1.svg", "alt": "Concept Art", "href": "/concept-art", "category": "Concept Art" },
+    { "src": "/images/placeholder-fisico-1.svg", "alt": "Trabalho Físico", "href": "/trabalhos-fisicos", "category": "Trabalhos Físicos" },
+    { "src": "/images/placeholder-3d-2.svg", "alt": "Modelagem 3D", "href": "/modelagem-3d", "category": "Modelagem 3D" }
+  ],
+  "marqueeRow2": [
+    { "src": "/images/placeholder-concept-2.svg", "alt": "Concept Art", "href": "/concept-art", "category": "Concept Art" },
+    { "src": "/images/placeholder-ilustracao-2.svg", "alt": "Ilustração", "href": "/ilustracoes", "category": "Ilustrações" },
+    { "src": "/images/placeholder-fisico-2.svg", "alt": "Trabalho Físico", "href": "/trabalhos-fisicos", "category": "Trabalhos Físicos" },
+    { "src": "/images/placeholder-concept-3.svg", "alt": "Concept Art", "href": "/concept-art", "category": "Concept Art" },
+    { "src": "/images/placeholder-3d-3.svg", "alt": "Modelagem 3D", "href": "/modelagem-3d", "category": "Modelagem 3D" }
+  ]
+}

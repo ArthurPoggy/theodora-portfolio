@@ -1,19 +1,19 @@
+import { GetStaticProps } from 'next'
 import Layout from '@/components/Layout'
-import ImageGrid, { GalleryImage } from '@/components/ImageGrid'
-import { motion } from 'framer-motion'
+import ImageGrid from '@/components/ImageGrid'
 import TypeWriter from '@/components/TypeWriter'
+import { motion } from 'framer-motion'
+import type { GalleryImage, GalleriesData } from '@/types/cms'
+import galleriesData from '@/data/galleries.json'
 
-// Adicionar imagens reais em public/images/3d/ e atualizar este array
-const IMAGES: GalleryImage[] = [
-  { src: '/images/placeholder-3d-1.svg', alt: 'Modelagem 3D - Obra 1' },
-  { src: '/images/placeholder-3d-2.svg', alt: 'Modelagem 3D - Obra 2' },
-  { src: '/images/placeholder-3d-3.svg', alt: 'Modelagem 3D - Obra 3' },
-  { src: '/images/placeholder-3d-4.svg', alt: 'Modelagem 3D - Obra 4' },
-  { src: '/images/placeholder-3d-5.svg', alt: 'Modelagem 3D - Obra 5' },
-  { src: '/images/placeholder-3d-6.svg', alt: 'Modelagem 3D - Obra 6' },
-]
+interface Props { images: GalleryImage[] }
 
-export default function Modelagem3DPage() {
+export const getStaticProps: GetStaticProps<Props> = async () => {
+  const data = galleriesData as GalleriesData
+  return { props: { images: data.modelagem3d } }
+}
+
+export default function Modelagem3DPage({ images }: Props) {
   return (
     <Layout title="Modelagem 3D" description="Galeria de trabalhos de modelagem 3D por by.TheodoraD">
       <section className="pt-14 pb-4 px-6 max-w-7xl mx-auto text-center">
@@ -32,7 +32,7 @@ export default function Modelagem3DPage() {
           className="h-0.5 w-24 bg-accent mx-auto mb-8"
         />
       </section>
-      <ImageGrid images={IMAGES} />
+      <ImageGrid images={images} />
     </Layout>
   )
 }

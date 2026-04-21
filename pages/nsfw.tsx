@@ -1,18 +1,19 @@
+import { GetStaticProps } from 'next'
 import Layout from '@/components/Layout'
-import ImageGrid, { GalleryImage } from '@/components/ImageGrid'
+import ImageGrid from '@/components/ImageGrid'
 import NsfwGate from '@/components/NsfwGate'
 import { motion } from 'framer-motion'
+import type { GalleryImage, GalleriesData } from '@/types/cms'
+import galleriesData from '@/data/galleries.json'
 
-const IMAGES: GalleryImage[] = [
-  { src: '/images/placeholder-ilustracao-1.svg', alt: 'NSFW - Obra 1' },
-  { src: '/images/placeholder-ilustracao-2.svg', alt: 'NSFW - Obra 2' },
-  { src: '/images/placeholder-ilustracao-3.svg', alt: 'NSFW - Obra 3' },
-  { src: '/images/placeholder-ilustracao-4.svg', alt: 'NSFW - Obra 4' },
-  { src: '/images/placeholder-ilustracao-5.svg', alt: 'NSFW - Obra 5' },
-  { src: '/images/placeholder-ilustracao-6.svg', alt: 'NSFW - Obra 6' },
-]
+interface Props { images: GalleryImage[] }
 
-export default function NsfwPage() {
+export const getStaticProps: GetStaticProps<Props> = async () => {
+  const data = galleriesData as GalleriesData
+  return { props: { images: data.nsfw } }
+}
+
+export default function NsfwPage({ images }: Props) {
   return (
     <Layout title="NSFW" description="Conteúdo adulto — acesso restrito a maiores de 18 anos">
       <NsfwGate>
@@ -21,7 +22,7 @@ export default function NsfwPage() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="font-display text-5xl font-bold text-foreground mb-3"
+            className="font-display text-5xl font-bold text-foreground mb-6"
           >
             NSFW
           </motion.h1>
@@ -29,7 +30,7 @@ export default function NsfwPage() {
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="h-0.5 w-24 bg-accent mx-auto mb-4"
+            className="h-0.5 w-24 bg-accent mx-auto mb-8"
           />
           <motion.p
             initial={{ opacity: 0 }}
@@ -40,7 +41,7 @@ export default function NsfwPage() {
             Conteúdo adulto — acesso restrito a maiores de 18 anos
           </motion.p>
         </section>
-        <ImageGrid images={IMAGES} />
+        <ImageGrid images={images} />
       </NsfwGate>
     </Layout>
   )

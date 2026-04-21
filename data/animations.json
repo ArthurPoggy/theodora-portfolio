@@ -1,0 +1,12 @@
+{
+  "gifs": [
+    { "src": "/images/placeholder-concept-1.svg", "alt": "GIF - Animação 1" },
+    { "src": "/images/placeholder-concept-1.svg", "alt": "GIF - Animação 2" },
+    { "src": "/images/placeholder-concept-1.svg", "alt": "GIF - Animação 3" },
+    { "src": "/images/placeholder-concept-1.svg", "alt": "GIF - Animação 4" }
+  ],
+  "videos": [
+    { "type": "youtube", "title": "Animação 1", "youtubeId": "dQw4w9WgXcQ" },
+    { "type": "youtube", "title": "Animação 2", "youtubeId": "dQw4w9WgXcQ" }
+  ]
+}

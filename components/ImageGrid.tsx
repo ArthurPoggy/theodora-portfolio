@@ -1,13 +1,9 @@
 import Image from 'next/image'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import type { GalleryImage } from '@/types/cms'
 
-export interface GalleryImage {
-  src: string
-  alt: string
-  width?: number
-  height?: number
-}
+export type { GalleryImage }
 
 interface ImageGridProps {
   images: GalleryImage[]
@@ -39,10 +35,16 @@ export default function ImageGrid({ images }: ImageGridProps) {
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             </div>
-            {/* Overlay sutil */}
+            {/* Overlay de borda no hover */}
             <div className="absolute inset-0 border-2 border-transparent group-hover:border-accent/50 rounded-3xl transition-all duration-300 pointer-events-none" />
-            {/* Sombra colorida no hover */}
+            {/* Sombra colorida */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl shadow-[0_0_20px_rgba(139,232,248,0.25)] pointer-events-none" />
+            {/* Título no hover */}
+            {img.title && (
+              <div className="absolute bottom-0 left-0 right-0 px-3 py-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                <p className="text-foreground text-xs font-semibold truncate">{img.title}</p>
+              </div>
+            )}
           </motion.div>
         ))}
       </div>
@@ -64,7 +66,7 @@ export default function ImageGrid({ images }: ImageGridProps) {
               className="relative max-w-4xl max-h-[90vh] w-full mx-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="relative w-full h-[80vh]">
+              <div className="relative w-full h-[75vh]">
                 <Image
                   src={lightbox.src}
                   alt={lightbox.alt}
@@ -82,7 +84,13 @@ export default function ImageGrid({ images }: ImageGridProps) {
                   <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
               </button>
-              {lightbox.alt && (
+              {lightbox.title && (
+                <p className="text-center text-foreground font-semibold text-base mt-3">{lightbox.title}</p>
+              )}
+              {lightbox.description && (
+                <p className="text-center text-foreground-muted text-sm mt-1 max-w-lg mx-auto px-4">{lightbox.description}</p>
+              )}
+              {!lightbox.title && lightbox.alt && (
                 <p className="text-center text-foreground-muted text-sm mt-3">{lightbox.alt}</p>
               )}
             </motion.div>

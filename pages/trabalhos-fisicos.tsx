@@ -1,18 +1,19 @@
+import { GetStaticProps } from 'next'
 import Layout from '@/components/Layout'
-import ImageGrid, { GalleryImage } from '@/components/ImageGrid'
-import { motion } from 'framer-motion'
+import ImageGrid from '@/components/ImageGrid'
 import TypeWriter from '@/components/TypeWriter'
+import { motion } from 'framer-motion'
+import type { GalleryImage, GalleriesData } from '@/types/cms'
+import galleriesData from '@/data/galleries.json'
 
-const IMAGES: GalleryImage[] = [
-  { src: '/images/placeholder-fisico-1.svg', alt: 'Trabalho Físico - Obra 1' },
-  { src: '/images/placeholder-fisico-2.svg', alt: 'Trabalho Físico - Obra 2' },
-  { src: '/images/placeholder-fisico-3.svg', alt: 'Trabalho Físico - Obra 3' },
-  { src: '/images/placeholder-fisico-4.svg', alt: 'Trabalho Físico - Obra 4' },
-  { src: '/images/placeholder-fisico-5.svg', alt: 'Trabalho Físico - Obra 5' },
-  { src: '/images/placeholder-fisico-6.svg', alt: 'Trabalho Físico - Obra 6' },
-]
+interface Props { images: GalleryImage[] }
 
-export default function TrabalhosFisicosPage() {
+export const getStaticProps: GetStaticProps<Props> = async () => {
+  const data = galleriesData as GalleriesData
+  return { props: { images: data.trabalhosFisicos } }
+}
+
+export default function TrabalhosFisicosPage({ images }: Props) {
   return (
     <Layout title="Trabalhos Físicos" description="Galeria de trabalhos físicos e tradicionais por by.TheodoraD">
       <section className="pt-14 pb-4 px-6 max-w-7xl mx-auto text-center">
@@ -31,7 +32,7 @@ export default function TrabalhosFisicosPage() {
           className="h-0.5 w-24 bg-accent mx-auto mb-8"
         />
       </section>
-      <ImageGrid images={IMAGES} />
+      <ImageGrid images={images} />
     </Layout>
   )
 }

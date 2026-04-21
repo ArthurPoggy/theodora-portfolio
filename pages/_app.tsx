@@ -1,9 +1,10 @@
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import '@/styles/globals.css'
 import Sparkles from '@/components/Sparkles'
 import MusicPlayer from '@/components/MusicPlayer'
+import type { Track } from '@/types/cms'
 
 export function trackPageVisit(page: string) {
   if (typeof window === 'undefined') return
@@ -12,11 +13,16 @@ export function trackPageVisit(page: string) {
   localStorage.setItem('pageStats', JSON.stringify(data))
 }
 
-// Playlist vazia por enquanto — artista vai enviar as músicas
-const TRACKS: { title: string; artist?: string; src: string }[] = []
-
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter()
+  const [tracks, setTracks] = useState<Track[]>([])
+
+  useEffect(() => {
+    fetch('/api/public/tracks')
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setTracks(data) })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     trackPageVisit(router.pathname)
@@ -29,7 +35,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Sparkles count={18} />
       <Component {...pageProps} />
-      <MusicPlayer tracks={TRACKS} />
+      <MusicPlayer tracks={tracks} />
     </>
   )
 }

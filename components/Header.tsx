@@ -1,7 +1,14 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import type { SocialLinks } from '@/types/cms'
+
+const DEFAULT_SOCIAL: SocialLinks = {
+  linkedin: 'https://www.linkedin.com/in/theodora-dedeski/',
+  bluesky: 'https://bsky.app/profile/theodora-com-th.bsky.social',
+  itchio: 'https://by-theodora-d.itch.io/',
+}
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
@@ -36,6 +43,14 @@ const ItchIcon = () => (
 export default function Header() {
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [social, setSocial] = useState<SocialLinks>(DEFAULT_SOCIAL)
+
+  useEffect(() => {
+    fetch('/api/public/social')
+      .then((r) => r.json())
+      .then((data) => { if (data?.linkedin) setSocial(data) })
+      .catch(() => {})
+  }, [])
 
   return (
     <header className="w-full bg-bg/95 backdrop-blur-sm border-b border-bg-card sticky top-0 z-50">
@@ -68,25 +83,13 @@ export default function Header() {
 
         {/* Links sociais + botão contato */}
         <div className="hidden lg:flex items-center gap-3">
-          <motion.a
-            href="https://www.linkedin.com/in/theodora-dedeski/" target="_blank" rel="noopener noreferrer"
-            className="text-foreground-muted hover:text-accent transition-colors"
-            whileHover={{ scale: 1.15 }} title="LinkedIn"
-          >
+          <motion.a href={social.linkedin} target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent transition-colors" whileHover={{ scale: 1.15 }} title="LinkedIn">
             <LinkedInIcon />
           </motion.a>
-          <motion.a
-            href="https://bsky.app/profile/theodora-com-th.bsky.social" target="_blank" rel="noopener noreferrer"
-            className="text-foreground-muted hover:text-accent transition-colors"
-            whileHover={{ scale: 1.15 }} title="BlueSky"
-          >
+          <motion.a href={social.bluesky} target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent transition-colors" whileHover={{ scale: 1.15 }} title="BlueSky">
             <BlueSkyIcon />
           </motion.a>
-          <motion.a
-            href="https://by-theodora-d.itch.io/" target="_blank" rel="noopener noreferrer"
-            className="text-foreground-muted hover:text-accent transition-colors"
-            whileHover={{ scale: 1.15 }} title="Itch.io"
-          >
+          <motion.a href={social.itchio} target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent transition-colors" whileHover={{ scale: 1.15 }} title="Itch.io">
             <ItchIcon />
           </motion.a>
 
@@ -148,9 +151,9 @@ export default function Header() {
                 Contato
               </Link>
               <div className="flex items-center gap-4 mt-3 px-3 pb-2">
-                <a href="https://www.linkedin.com/in/theodora-dedeski/" target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent"><LinkedInIcon /></a>
-                <a href="https://bsky.app/profile/theodora-com-th.bsky.social" target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent"><BlueSkyIcon /></a>
-                <a href="https://by-theodora-d.itch.io/" target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent"><ItchIcon /></a>
+                <a href={social.linkedin} target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent"><LinkedInIcon /></a>
+                <a href={social.bluesky} target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent"><BlueSkyIcon /></a>
+                <a href={social.itchio} target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-accent"><ItchIcon /></a>
               </div>
             </nav>
           </motion.div>

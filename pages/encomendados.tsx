@@ -1,18 +1,19 @@
+import { GetStaticProps } from 'next'
 import Layout from '@/components/Layout'
-import ImageGrid, { GalleryImage } from '@/components/ImageGrid'
+import ImageGrid from '@/components/ImageGrid'
 import TypeWriter from '@/components/TypeWriter'
 import { motion } from 'framer-motion'
+import type { GalleryImage, GalleriesData } from '@/types/cms'
+import galleriesData from '@/data/galleries.json'
 
-const IMAGES: GalleryImage[] = [
-  { src: '/images/placeholder-ilustracao-1.svg', alt: 'Encomenda - Obra 1' },
-  { src: '/images/placeholder-ilustracao-2.svg', alt: 'Encomenda - Obra 2' },
-  { src: '/images/placeholder-ilustracao-3.svg', alt: 'Encomenda - Obra 3' },
-  { src: '/images/placeholder-ilustracao-4.svg', alt: 'Encomenda - Obra 4' },
-  { src: '/images/placeholder-ilustracao-5.svg', alt: 'Encomenda - Obra 5' },
-  { src: '/images/placeholder-ilustracao-6.svg', alt: 'Encomenda - Obra 6' },
-]
+interface Props { images: GalleryImage[] }
 
-export default function EncomendadosPage() {
+export const getStaticProps: GetStaticProps<Props> = async () => {
+  const data = galleriesData as GalleriesData
+  return { props: { images: data.encomendados } }
+}
+
+export default function EncomendadosPage({ images }: Props) {
   return (
     <Layout title="Encomendados" description="Portfolio de trabalhos encomendados por by.TheodoraD">
       <section className="pt-14 pb-4 px-6 max-w-7xl mx-auto text-center">
@@ -39,7 +40,7 @@ export default function EncomendadosPage() {
           Trabalhos realizados para clientes
         </motion.p>
       </section>
-      <ImageGrid images={IMAGES} />
+      <ImageGrid images={images} />
     </Layout>
   )
 }
