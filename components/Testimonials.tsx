@@ -10,15 +10,16 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
 
   return (
     <section className="py-16 px-6 max-w-7xl mx-auto">
-      <motion.h2
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="font-display text-3xl text-center text-foreground mb-12"
+        className="text-center mb-12"
       >
-        O que dizem sobre meu trabalho
-      </motion.h2>
+        <h2 className="font-display text-3xl text-foreground">Tá na boca do povo.</h2>
+        <p className="text-accent text-sm tracking-widest uppercase mt-2">Depoimentos</p>
+      </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {testimonials.map((t, idx) => (

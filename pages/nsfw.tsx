@@ -22,7 +22,7 @@ export default function NsfwPage({ images }: Props) {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="font-display text-5xl font-bold text-foreground mb-6"
+            className="font-display text-5xl font-bold text-foreground mb-10"
           >
             NSFW
           </motion.h1>

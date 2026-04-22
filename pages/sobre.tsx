@@ -20,7 +20,7 @@ export default function SobrePage({ about }: Props) {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="font-display text-5xl font-bold text-foreground mb-6"
+          className="font-display text-5xl font-bold text-foreground mb-10"
         >
           Sobre a Artista
         </motion.h1>
@@ -78,12 +78,12 @@ export default function SobrePage({ about }: Props) {
 
           <div className="mt-10 flex flex-wrap gap-4">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-              <Link href="/contato" className="inline-block px-6 py-2.5 bg-accent text-bg font-semibold rounded-lg hover:bg-accent-light transition-colors text-sm">
+              <Link href="/contato" className="inline-block px-6 py-2.5 bg-accent text-bg font-semibold rounded-2xl hover:bg-accent-light transition-colors text-sm">
                 Entre em contato
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-              <Link href="/" className="inline-block px-6 py-2.5 border border-accent/40 text-accent font-semibold rounded-lg hover:bg-accent/10 transition-colors text-sm">
+              <Link href="/" className="inline-block px-6 py-2.5 border border-accent/40 text-accent font-semibold rounded-2xl hover:bg-accent/10 transition-colors text-sm">
                 Ver portfolio
               </Link>
             </motion.div>

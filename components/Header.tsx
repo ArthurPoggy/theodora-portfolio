@@ -68,7 +68,7 @@ export default function Header() {
               <motion.div key={href} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
                 <Link
                   href={href}
-                  className={`px-3 py-1.5 rounded text-sm font-medium transition-colors duration-200 ${
+                  className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-colors duration-200 ${
                     isActive
                       ? 'text-accent border border-accent/40 bg-accent/10'
                       : 'text-foreground-muted hover:text-foreground hover:bg-bg-card'
@@ -96,7 +96,7 @@ export default function Header() {
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
             <Link
               href="/contato"
-              className="ml-2 px-4 py-1.5 bg-accent text-bg rounded text-sm font-semibold hover:bg-accent-light transition-colors duration-200"
+              className="ml-2 px-4 py-1.5 bg-accent text-bg rounded-xl text-sm font-semibold hover:bg-accent-light transition-colors duration-200"
             >
               Contato
             </Link>
@@ -134,7 +134,7 @@ export default function Header() {
                   key={href}
                   href={href}
                   onClick={() => setMenuOpen(false)}
-                  className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                     router.pathname === href
                       ? 'text-accent bg-accent/10'
                       : 'text-foreground-muted hover:text-foreground hover:bg-bg-card'
@@ -146,7 +146,7 @@ export default function Header() {
               <Link
                 href="/contato"
                 onClick={() => setMenuOpen(false)}
-                className="mt-2 px-4 py-2 bg-accent text-bg rounded text-sm font-semibold text-center"
+                className="mt-2 px-4 py-2 bg-accent text-bg rounded-xl text-sm font-semibold text-center"
               >
                 Contato
               </Link>

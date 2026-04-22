@@ -80,7 +80,7 @@ export default function HomePage({ home, testimonials }: Props) {
                     <motion.div key={href} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
                       <Link
                         href={href}
-                        className="px-3 py-1.5 border border-accent/40 text-accent text-sm rounded hover:bg-accent hover:text-bg transition-all duration-200"
+                        className="px-3 py-1.5 border border-accent/40 text-accent text-sm rounded-xl hover:bg-accent hover:text-bg transition-all duration-200"
                       >
                         {label}
                       </Link>
@@ -102,9 +102,9 @@ export default function HomePage({ home, testimonials }: Props) {
         >
           <Win98Window title="galeria_trabalhos.exe" className="w-full">
             <div className="bg-bg py-6 relative">
-              <div className="absolute top-2 right-4 select-none pointer-events-none opacity-50">
+              <div className="absolute top-2 right-4 select-none pointer-events-none opacity-80">
                 <svg width="20" height="28" viewBox="0 0 20 28" fill="white">
-                  <path d="M0 0L0 20L5 15L8 22L10 21L7 14L13 14Z" />
+                  <path d="M0 0L0 20L5 15L8 22L10 21L7 14L13 14Z" stroke="black" strokeWidth="0.5" />
                 </svg>
               </div>
               <h2 className="font-display text-xl text-center text-foreground mb-6 px-6">
@@ -114,6 +114,14 @@ export default function HomePage({ home, testimonials }: Props) {
                 <MarqueeGallery items={home.marqueeRow1} direction="left" />
               </div>
               <MarqueeGallery items={home.marqueeRow2} direction="right" />
+              {/* Scrollbar horizontal decorativa Win95 */}
+              <div className="flex items-center mx-4 mt-3 mb-1 h-4" style={{ background: '#c0c0c0', border: '2px solid', borderColor: '#ffffff #808080 #808080 #ffffff', outline: '1px solid #000' }}>
+                <div className="flex items-center justify-center w-4 h-full flex-shrink-0 text-black select-none" style={{ fontSize: '8px', background: '#c0c0c0', border: '1px solid', borderColor: '#ffffff #808080 #808080 #ffffff' }}>◄</div>
+                <div className="flex-1 h-full relative" style={{ background: 'repeating-conic-gradient(#c0c0c0 0% 25%, #a0a0a0 0% 50%) 0 0 / 4px 4px' }}>
+                  <div className="absolute top-0 h-full" style={{ left: '30%', width: '40%', background: '#c0c0c0', border: '2px solid', borderColor: '#ffffff #808080 #808080 #ffffff' }} />
+                </div>
+                <div className="flex items-center justify-center w-4 h-full flex-shrink-0 text-black select-none" style={{ fontSize: '8px', background: '#c0c0c0', border: '1px solid', borderColor: '#ffffff #808080 #808080 #ffffff' }}>►</div>
+              </div>
             </div>
           </Win98Window>
         </motion.div>
@@ -139,7 +147,7 @@ export default function HomePage({ home, testimonials }: Props) {
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
             <Link
               href="/contato"
-              className="inline-block px-8 py-3 bg-accent text-bg font-semibold rounded-lg hover:bg-accent-light transition-colors duration-200 text-sm tracking-wide"
+              className="inline-block px-8 py-3 bg-accent text-bg font-semibold rounded-2xl hover:bg-accent-light transition-colors duration-200 text-sm tracking-wide"
             >
               Enviar mensagem
             </Link>
