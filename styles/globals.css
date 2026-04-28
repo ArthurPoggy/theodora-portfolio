@@ -32,11 +32,11 @@ body {
   font-size: 1.0625rem;
   min-height: 100vh;
   overflow-x: hidden;
-  cursor: url('/cursor.png') 0 0, default;
+  cursor: none;
 }
 
-a, button, [role="button"], label, select, input[type="submit"], input[type="button"], input[type="reset"] {
-  cursor: url('/cursor.png') 0 0, pointer;
+*, a, button, [role="button"], label, select, input[type="submit"], input[type="button"], input[type="reset"] {
+  cursor: none;
 }
 
 /* Scrollbar customizada */

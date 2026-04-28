@@ -5,6 +5,7 @@ import '@/styles/globals.css'
 import Sparkles from '@/components/Sparkles'
 import MusicPlayer from '@/components/MusicPlayer'
 import Win98Scrollbar from '@/components/Win98Scrollbar'
+import CustomCursor from '@/components/CustomCursor'
 import type { Track } from '@/types/cms'
 
 export function trackPageVisit(page: string) {
@@ -34,6 +35,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
+      <CustomCursor />
       <Sparkles count={18} />
       <Win98Scrollbar />
       <Component {...pageProps} />
