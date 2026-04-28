@@ -20,7 +20,7 @@ export default function Layout({ children, title, description }: LayoutProps) {
         {description && <meta name="description" content={description} />}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <div className="flex flex-col min-h-screen bg-bg text-foreground">
+      <div className="flex flex-col min-h-screen text-foreground relative z-10">
         <Header />
         <main className="flex-1 page-transition">
           {children}
