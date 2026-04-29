@@ -39,11 +39,9 @@ body {
   cursor: none;
 }
 
-/* Scrollbar customizada */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--color-bg-card); }
-::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: #cfc0fe; }
+/* Esconde scrollbar nativa — a Win98Scrollbar lateral é a customizada */
+::-webkit-scrollbar { width: 0; height: 0; display: none; }
+html { scrollbar-width: none; }
 
 /* Seleção de texto */
 ::selection { background: var(--color-accent); color: #0f0f0f; }
@@ -97,7 +95,7 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: rgba(15, 15, 15, 0.55);
+  background: rgba(15, 15, 15, 0.30);
   pointer-events: none;
   z-index: 0;
 }

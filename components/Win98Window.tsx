@@ -20,7 +20,7 @@ export default function Win98Window({ title, children, className = '' }: Win98Wi
       <div
         className="flex items-center justify-between px-2 py-1 select-none"
         style={{
-          background: 'linear-gradient(90deg, #000080 0%, #1084d0 100%)',
+          background: 'linear-gradient(90deg, #1e0a4a 0%, #7b4fc9 100%)',
           minHeight: '24px',
         }}
       >

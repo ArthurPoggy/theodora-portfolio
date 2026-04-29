@@ -102,11 +102,6 @@ export default function HomePage({ home, testimonials }: Props) {
         >
           <Win98Window title="galeria_trabalhos.exe" className="w-full">
             <div className="bg-bg py-6 relative">
-              <div className="absolute top-2 right-4 select-none pointer-events-none opacity-80">
-                <svg width="20" height="28" viewBox="0 0 20 28" fill="white">
-                  <path d="M0 0L0 20L5 15L8 22L10 21L7 14L13 14Z" stroke="black" strokeWidth="0.5" />
-                </svg>
-              </div>
               <h2 className="font-display text-xl text-center text-foreground mb-6 px-6">
                 Trabalhos em destaque
               </h2>

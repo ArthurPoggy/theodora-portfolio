@@ -28,7 +28,7 @@ export default function CustomCursor() {
         position: 'fixed',
         pointerEvents: 'none',
         zIndex: 99999,
-        width: 40,
+        width: 28,
         opacity: visible ? 1 : 0,
         transform: 'translate(0, 0)',
         imageRendering: 'pixelated',
