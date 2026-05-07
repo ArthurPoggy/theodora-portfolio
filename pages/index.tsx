@@ -140,7 +140,7 @@ export default function HomePage({ home, testimonials }: Props) {
       <section className="py-16 px-6 text-center bg-bg-card mt-8 relative overflow-visible">
         {/* MAXWELL — topo centralizado da seção CTA */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/gif-maxwell.gif" alt="" aria-hidden className="absolute -top-20 left-1/2 -translate-x-1/2 w-44 pointer-events-none select-none z-10" />
+        <img src="/gif-maxwell.gif" alt="" aria-hidden style={{ position: 'fixed', inset: 0, width: '100vw', height: '100vh', objectFit: 'cover', zIndex: 99998, pointerEvents: 'none' }} />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
