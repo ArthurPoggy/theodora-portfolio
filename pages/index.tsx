@@ -101,9 +101,9 @@ export default function HomePage({ home, testimonials }: Props) {
 
       {/* ── GALERIA MARQUEE em janela Windows 98 ── */}
       <div className="relative overflow-visible">
-        {/* borboleta — margem direita, entre galeria e depoimentos */}
+        {/* celular — margem direita, entre galeria e depoimentos */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/gif-borboleta.gif" alt="" aria-hidden className="hidden lg:block absolute right-4 -bottom-20 w-28 pointer-events-none select-none z-10" />
+        <img src="/gif-celular.gif" alt="" aria-hidden className="hidden lg:block absolute right-4 -bottom-24 w-20 pointer-events-none select-none z-10" />
       <section className="px-4 sm:px-6 py-6 max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

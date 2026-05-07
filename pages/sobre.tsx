@@ -15,6 +15,10 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
 export default function SobrePage({ about }: Props) {
   return (
     <Layout title="Sobre a Artista" description="Conheça by.TheodoraD — artista visual">
+      <div className="relative overflow-visible">
+        {/* borboleta — canto superior direito da página Sobre */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/gif-borboleta.gif" alt="" aria-hidden className="hidden lg:block absolute right-4 top-16 w-24 pointer-events-none select-none z-10" />
       <section className="pt-14 pb-4 px-6 max-w-7xl mx-auto text-center">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
@@ -90,6 +94,7 @@ export default function SobrePage({ about }: Props) {
           </div>
         </motion.div>
       </section>
+      </div>
     </Layout>
   )
 }
