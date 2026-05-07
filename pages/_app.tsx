@@ -35,6 +35,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, backgroundImage: "url('/bg.png')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', pointerEvents: 'none' }} />
       <CustomCursor />
       <Sparkles count={18} />
       <Win98Scrollbar />

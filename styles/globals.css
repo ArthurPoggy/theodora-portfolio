@@ -19,12 +19,6 @@
 html {
   scroll-behavior: smooth;
   background-color: var(--color-bg);
-  background-image: url('/bg.png');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  min-height: 100%;
 }
 
 body {
