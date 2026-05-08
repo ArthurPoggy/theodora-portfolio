@@ -8,12 +8,12 @@ export default function ContatoPage() {
   return (
     <Layout title="Contato" description="Entre em contato com by.TheodoraD para projetos e colaborações">
       {/* Cabeçalho */}
-      <section className="pt-14 pb-8 px-6 text-center bg-bg w-full">
+      <section className="pt-14 pb-8 px-6 text-center">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="font-display text-5xl font-bold text-foreground mb-3"
+          className="w-fit mx-auto font-display text-5xl font-bold text-foreground mb-3 bg-bg px-8 py-3"
         >
           Contato
         </motion.h1>

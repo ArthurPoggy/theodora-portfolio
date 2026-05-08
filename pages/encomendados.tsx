@@ -16,12 +16,12 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
 export default function EncomendadosPage({ images }: Props) {
   return (
     <Layout title="Encomendados" description="Portfolio de trabalhos encomendados por by.TheodoraD">
-      <section className="pt-14 pb-8 px-6 text-center bg-bg w-full">
+      <section className="pt-14 pb-8 px-6 text-center">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="font-display text-5xl font-bold text-foreground mb-10"
+          className="w-fit mx-auto font-display text-5xl font-bold text-foreground mb-10 bg-bg px-8 py-3"
         >
           <TypeWriter text="Encomendados" />
         </motion.h1>
