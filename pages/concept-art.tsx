@@ -27,7 +27,7 @@ export default function ConceptArtPage({ cenario, personagem }: Props) {
 
   return (
     <Layout title="Concept Art" description="Galeria de concept art por By Theodora D.">
-      <section className="pt-14 pb-4 px-6 max-w-7xl mx-auto text-center">
+      <section className="pt-14 pb-8 px-6 text-center bg-bg w-full">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

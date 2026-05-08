@@ -19,7 +19,7 @@ export default function SobrePage({ about }: Props) {
         {/* borboleta — canto superior direito da página Sobre */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/gif-borboleta.gif" alt="" aria-hidden className="hidden lg:block absolute right-4 top-16 w-32 pointer-events-none select-none z-10" />
-      <section className="pt-14 pb-4 px-6 max-w-7xl mx-auto text-center">
+      <section className="pt-14 pb-8 px-6 text-center bg-bg w-full">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -16,7 +16,7 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
 export default function TrabalhosFisicosPage({ images }: Props) {
   return (
     <Layout title="Trabalhos Físicos" description="Galeria de trabalhos físicos e tradicionais por by.TheodoraD">
-      <section className="pt-14 pb-4 px-6 max-w-7xl mx-auto text-center">
+      <section className="pt-14 pb-8 px-6 text-center bg-bg w-full">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

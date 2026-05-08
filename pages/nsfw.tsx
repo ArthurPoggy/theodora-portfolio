@@ -17,7 +17,7 @@ export default function NsfwPage({ images }: Props) {
   return (
     <Layout title="NSFW" description="Conteúdo adulto — acesso restrito a maiores de 18 anos">
       <NsfwGate>
-        <section className="pt-14 pb-4 px-6 max-w-7xl mx-auto text-center">
+        <section className="pt-14 pb-8 px-6 text-center bg-bg w-full">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
