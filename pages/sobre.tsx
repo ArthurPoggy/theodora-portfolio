@@ -36,7 +36,7 @@ export default function SobrePage({ about }: Props) {
         />
       </section>
 
-      <section className="max-w-5xl mx-auto px-6 py-14 flex flex-col lg:flex-row gap-14 items-start">
+      <section className="max-w-5xl mx-auto px-6 py-14 flex flex-col lg:flex-row gap-14 items-start bg-bg">
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}

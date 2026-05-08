@@ -15,10 +15,12 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="text-center mb-12"
+        className="mb-12"
       >
-        <h2 className="font-display text-3xl text-foreground">Tá na boca do povo.</h2>
-        <p className="text-accent text-sm tracking-widest uppercase mt-2">Depoimentos</p>
+        <div className="w-fit mx-auto bg-bg px-10 py-5 text-center">
+          <h2 className="font-display text-3xl text-foreground">Tá na boca do povo.</h2>
+          <p className="text-accent text-sm tracking-widest uppercase mt-2">Depoimentos</p>
+        </div>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
