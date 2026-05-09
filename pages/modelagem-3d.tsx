@@ -16,6 +16,9 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
 export default function Modelagem3DPage({ images }: Props) {
   return (
     <Layout title="Modelagem 3D" description="Galeria de trabalhos de modelagem 3D por by.TheodoraD">
+      <div className="relative overflow-visible">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/gif-estrela.gif" alt="" aria-hidden className="hidden lg:block absolute right-4 top-8 w-40 pointer-events-none select-none z-10" />
       <section className="pt-14 pb-8 px-6 text-center">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
@@ -33,6 +36,7 @@ export default function Modelagem3DPage({ images }: Props) {
         />
       </section>
       <ImageGrid images={images} />
+      </div>
     </Layout>
   )
 }
