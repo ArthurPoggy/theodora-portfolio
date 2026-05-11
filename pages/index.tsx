@@ -41,11 +41,7 @@ export default function HomePage({ home, testimonials }: Props) {
       description="Portfolio de By Theodora D. — artista visual especializada em modelagem 3D, ilustrações, concept art e animações."
     >
       {/* ── HERO em janela Windows 98 ── */}
-      <section className="py-12 relative overflow-visible">
-        {/* lacinho — margem esquerda do hero */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/gif-lacinho.gif" alt="" aria-hidden className="hidden lg:block absolute left-4 top-20 w-36 pointer-events-none select-none z-10" />
-
+      <section className="py-12">
         <div className="px-4 sm:px-6 max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -100,10 +96,6 @@ export default function HomePage({ home, testimonials }: Props) {
       </section>
 
       {/* ── GALERIA MARQUEE em janela Windows 98 ── */}
-      <div className="relative overflow-visible">
-        {/* celular — margem direita, entre galeria e depoimentos */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/gif-celular.gif" alt="" aria-hidden className="hidden lg:block absolute right-4 -bottom-28 w-24 pointer-events-none select-none z-10" />
       <section className="px-4 sm:px-6 py-6 max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -131,16 +123,12 @@ export default function HomePage({ home, testimonials }: Props) {
           </Win98Window>
         </motion.div>
       </section>
-      </div>
 
       {/* ── DEPOIMENTOS ── */}
       <Testimonials testimonials={testimonials} />
 
       {/* ── CTA CONTATO ── */}
-      <section className="py-16 px-6 text-center bg-bg-card mt-8 relative overflow-visible">
-        {/* MAXWELL — topo centralizado da seção CTA */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/gif-maxwell.gif" alt="" aria-hidden className="absolute -top-20 left-1/2 -translate-x-1/2 w-44 pointer-events-none select-none z-10" />
+      <section className="py-16 px-6 text-center bg-bg-card mt-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

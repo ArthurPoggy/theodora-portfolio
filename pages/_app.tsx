@@ -6,6 +6,7 @@ import Sparkles from '@/components/Sparkles'
 import MusicPlayer from '@/components/MusicPlayer'
 import Win98Scrollbar from '@/components/Win98Scrollbar'
 import CustomCursor from '@/components/CustomCursor'
+import { OverlaysProvider } from '@/components/OverlaysContext'
 import type { Track } from '@/types/cms'
 
 export function trackPageVisit(page: string) {
@@ -34,13 +35,13 @@ export default function App({ Component, pageProps }: AppProps) {
   }, [router])
 
   return (
-    <>
+    <OverlaysProvider>
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, backgroundImage: "url('/bg.png')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', pointerEvents: 'none' }} />
       <CustomCursor />
       <Sparkles count={18} />
       <Win98Scrollbar />
       <Component {...pageProps} />
       <MusicPlayer tracks={tracks} />
-    </>
+    </OverlaysProvider>
   )
 }

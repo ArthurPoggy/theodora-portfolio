@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import Header from './Header'
 import Footer from './Footer'
+import MediaOverlays from './MediaOverlays'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -26,6 +27,7 @@ export default function Layout({ children, title, description }: LayoutProps) {
           {children}
         </main>
         <Footer />
+        <MediaOverlays />
       </div>
     </>
   )

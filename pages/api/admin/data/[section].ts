@@ -4,7 +4,7 @@ import { getRepoFile, putRepoFile } from '@/lib/github'
 import path from 'path'
 import fs from 'fs'
 
-const VALID_SECTIONS = ['galleries', 'animations', 'about', 'testimonials', 'tracks', 'home', 'social']
+const VALID_SECTIONS = ['galleries', 'animations', 'about', 'testimonials', 'tracks', 'home', 'social', 'overlays']
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { section } = req.query as { section: string }
