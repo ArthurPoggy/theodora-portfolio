@@ -77,6 +77,8 @@ function StaticOverlay({ item }: { item: MediaOverlay }) {
     userSelect: 'none',
   }
 
+  console.log('[StaticOverlay] renderizando mídia:', item.src, '| tipo:', item.type, '| posição:', positionStyle, '| width:', item.width + 'vw', '| hideOnMobile:', item.hideOnMobile, '| rootClass:', rootClass)
+
   return (
     <div
       aria-hidden
@@ -90,10 +92,21 @@ function StaticOverlay({ item }: { item: MediaOverlay }) {
       }}
     >
       {item.type === 'video' ? (
-        <video src={item.src} autoPlay loop muted playsInline style={mediaStyle} />
+        <video
+          src={item.src}
+          autoPlay loop muted playsInline style={mediaStyle}
+          onLoadedData={() => console.log('[StaticOverlay] vídeo carregou:', item.src)}
+          onError={() => console.error('[StaticOverlay] ERRO ao carregar vídeo:', item.src)}
+        />
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={item.src} alt="" style={mediaStyle} />
+        <img
+          src={item.src}
+          alt=""
+          style={mediaStyle}
+          onLoad={() => console.log('[StaticOverlay] imagem carregou:', item.src)}
+          onError={() => console.error('[StaticOverlay] ERRO ao carregar imagem:', item.src)}
+        />
       )}
     </div>
   )
