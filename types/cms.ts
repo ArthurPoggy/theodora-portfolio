@@ -83,19 +83,20 @@ export interface ApiResponse<T = void> {
 // ── Media Overlays ──────────────────────────────────────────────────────
 // Sistema de mídias decorativas posicionáveis pelo admin em qualquer página
 
-export type OverlayMediaType = 'image' | 'video'
+export type OverlayMediaType = 'image' | 'video' | 'spotify'
 export type OverlayPositioning = 'page' | 'viewport'   // page = absolute no Layout wrapper; viewport = fixed
 export type OverlayAnchor = 'tl' | 'tr' | 'bl' | 'br'  // canto de referência
 
 export interface MediaOverlay {
   id: string                       // crypto.randomUUID()
-  src: string                      // /images/overlays/foo.gif
+  src: string                      // /images/overlays/foo.gif ou URL embed do Spotify
   type: OverlayMediaType
   positioning: OverlayPositioning
   anchor: OverlayAnchor
   x: number                        // % da largura do viewport (0-100), a partir do anchor horizontal
   y: number                        // px a partir do anchor vertical (page = relativo ao Layout; viewport = relativo à viewport)
   width: number                    // % da largura do viewport (0-100)
+  height?: number                  // px — usado pelo tipo 'spotify' (ignorado em image/video)
   rotation: number                 // graus (-180 a 180)
   zIndex: number                   // 2-29 (entre Sparkles=1 e Win98Scrollbar=30)
   visible: boolean

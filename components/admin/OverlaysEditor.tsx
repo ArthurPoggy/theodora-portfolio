@@ -4,6 +4,18 @@ import type { OverlaysData, MediaOverlay } from '@/types/cms'
 import ImageUploader from './ImageUploader'
 import OverlayPropsPanel from './OverlayPropsPanel'
 
+function toSpotifyEmbedUrl(input: string): string | null {
+  try {
+    const url = new URL(input.trim())
+    if (!url.hostname.includes('spotify.com')) return null
+    const parts = url.pathname.replace('/embed', '').split('/').filter(Boolean)
+    if (parts.length < 2) return null
+    return `https://open.spotify.com/embed/${parts[0]}/${parts[1]}?utm_source=generator&theme=0`
+  } catch {
+    return null
+  }
+}
+
 interface OverlaysEditorProps {
   data: OverlaysData
   onChange: (data: OverlaysData) => void
@@ -44,6 +56,24 @@ function newOverlay(src: string): MediaOverlay {
     width: 10,
     rotation: 0,
     zIndex: 10,
+    visible: true,
+    hideOnMobile: true,
+  }
+}
+
+function newSpotifyOverlay(embedUrl: string): MediaOverlay {
+  return {
+    id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `overlay-${Date.now()}`,
+    src: embedUrl,
+    type: 'spotify',
+    positioning: 'viewport',
+    anchor: 'br',
+    x: 2,
+    y: 20,
+    width: 22,
+    height: 152,
+    rotation: 0,
+    zIndex: 20,
     visible: true,
     hideOnMobile: true,
   }
@@ -102,6 +132,8 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [canvasW, setCanvasW] = useState(900)
   const [iframeLoaded, setIframeLoaded] = useState(false)
+  const [spotifyInput, setSpotifyInput] = useState('')
+  const [spotifyError, setSpotifyError] = useState('')
   // src -> aspect ratio (natural)
   const [aspectRatios, setAspectRatios] = useState<Record<string, number>>({})
 
@@ -147,6 +179,20 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
     const list = [...(dataRef.current[selectedPage] || []), created]
     setPageOverlays(list)
     setSelectedId(created.id)
+  }
+
+  function addSpotifyOverlay() {
+    setSpotifyError('')
+    const embedUrl = toSpotifyEmbedUrl(spotifyInput)
+    if (!embedUrl) {
+      setSpotifyError('URL inválida. Cole um link do Spotify (playlist, álbum, track…)')
+      return
+    }
+    const created = newSpotifyOverlay(embedUrl)
+    const list = [...(dataRef.current[selectedPage] || []), created]
+    setPageOverlays(list)
+    setSelectedId(created.id)
+    setSpotifyInput('')
   }
 
   function moveZ(id: string, dir: 1 | -1) {
@@ -279,44 +325,66 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
 
             {/* Items */}
             {pageOverlays.map((item) => {
-              const ar = aspectRatios[item.src] || 1
+              const isSpotify = item.type === 'spotify'
+              const ar = isSpotify ? 0 : (aspectRatios[item.src] || 1)
+              const spotifyHeightPx = isSpotify ? (item.height ?? 152) * scale : 0
               const { x, y, w, h } = toCanvasPos(item, canvasW, canvasH, ar)
+              const finalH = isSpotify ? spotifyHeightPx : h
               const isSelected = selectedId === item.id
 
               return (
                 <Rnd
                   key={item.id}
                   position={{ x, y }}
-                  size={{ width: w, height: h }}
-                  lockAspectRatio={ar > 0 ? ar : false}
+                  size={{ width: w, height: finalH }}
+                  lockAspectRatio={isSpotify ? false : (ar > 0 ? ar : false)}
                   enableResizing={{
-                    topLeft: true, topRight: true, bottomLeft: true, bottomRight: true,
-                    top: false, bottom: false, left: false, right: false,
+                    topLeft: !isSpotify, topRight: !isSpotify, bottomLeft: !isSpotify, bottomRight: !isSpotify,
+                    top: false, bottom: isSpotify, left: false, right: isSpotify,
                   }}
                   bounds="parent"
                   onDragStop={(_e, d) => {
-                    const pos = fromCanvasPos(d.x, d.y, item, canvasW, canvasH, w, h)
+                    const pos = fromCanvasPos(d.x, d.y, item, canvasW, canvasH, w, finalH)
                     updateOverlay(item.id, pos)
                   }}
                   onResizeStop={(_e, _dir, ref, _delta, pos) => {
                     const newW = (ref.offsetWidth / canvasW) * 100
+                    const patch: Partial<typeof item> = { width: newW }
+                    if (isSpotify) patch.height = Math.round(ref.offsetHeight / scale)
                     const newPos = fromCanvasPos(pos.x, pos.y, item, canvasW, canvasH, ref.offsetWidth, ref.offsetHeight)
-                    updateOverlay(item.id, { ...newPos, width: newW })
+                    updateOverlay(item.id, { ...newPos, ...patch })
                   }}
                   onMouseDown={(e) => {
                     e.stopPropagation()
                     setSelectedId(item.id)
                   }}
                   style={{
-                    zIndex: item.zIndex + 10, // garante que ficam acima do iframe (zIndex 0)
+                    zIndex: item.zIndex + 10,
                     outline: isSelected ? '2px solid #b49cfd' : '1px dashed rgba(180,156,253,0.35)',
                     outlineOffset: '2px',
                     cursor: 'move',
                     opacity: item.visible ? 1 : 0.35,
                   }}
                 >
-                  <div style={{ width: '100%', height: '100%', transform: `rotate(${item.rotation}deg)` }}>
-                    {item.type === 'video' ? (
+                  <div style={{ width: '100%', height: '100%', transform: isSpotify ? undefined : `rotate(${item.rotation}deg)` }}>
+                    {isSpotify ? (
+                      /* Placeholder Spotify no canvas (evita conflitos de mouse com Rnd) */
+                      <div style={{
+                        width: '100%', height: '100%',
+                        background: '#121212',
+                        borderRadius: 8,
+                        display: 'flex', flexDirection: 'column',
+                        alignItems: 'center', justifyContent: 'center',
+                        gap: 4, overflow: 'hidden', pointerEvents: 'none',
+                      }}>
+                        <svg viewBox="0 0 24 24" width={Math.max(16, w * 0.15)} fill="#1DB954">
+                          <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.371-.721.49-1.101.241-3.021-1.858-6.832-2.278-11.322-1.237-.422.1-.851-.16-.949-.584-.1-.421.16-.85.584-.949 4.91-1.121 9.121-.641 12.511 1.431.371.24.49.721.241 1.1h.036zm1.471-3.27c-.301.459-.917.6-1.379.301-3.459-2.131-8.729-2.75-12.812-1.509-.518.16-1.06-.129-1.221-.648-.159-.52.13-1.061.649-1.221 4.671-1.42 10.48-.729 14.47 1.72.461.3.601.916.3 1.378l-.007-.021zm.129-3.4c-4.149-2.469-11-2.699-14.96-1.492-.638.189-1.31-.169-1.5-.809-.189-.638.17-1.31.811-1.499 4.55-1.381 12.119-1.111 16.899 1.73.571.34.76 1.079.421 1.65-.34.57-1.08.76-1.65.42l-.021-.001z"/>
+                        </svg>
+                        <span style={{ color: '#1DB954', fontSize: Math.max(8, w * 0.04), fontFamily: 'monospace', whiteSpace: 'nowrap', maxWidth: '90%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          Spotify Player
+                        </span>
+                      </div>
+                    ) : item.type === 'video' ? (
                       <video
                         src={item.src}
                         autoPlay loop muted playsInline
@@ -347,7 +415,7 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
                       fontSize: 9, padding: '1px 5px', borderRadius: 3,
                       whiteSpace: 'nowrap', pointerEvents: 'none',
                     }}>
-                      {item.src.split('/').pop()} · z{item.zIndex}
+                      {isSpotify ? 'Spotify' : item.src.split('/').pop()} · z{item.zIndex}
                     </div>
                   )}
                 </Rnd>
@@ -358,15 +426,42 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
 
         {/* Sidebar */}
         <div className="space-y-4">
-          {/* Upload */}
+          {/* Upload de imagem/vídeo */}
           <div className="bg-bg-card border border-bg-hover rounded-xl p-4">
-            <p className="text-foreground-muted text-xs uppercase tracking-wider mb-3">Adicionar mídia</p>
+            <p className="text-foreground-muted text-xs uppercase tracking-wider mb-3">Adicionar imagem / vídeo</p>
             <ImageUploader
               onUpload={(src) => addOverlay(src)}
               targetDir="overlays"
               accept="image/*,video/mp4"
               label="Upload de imagem ou vídeo"
             />
+          </div>
+
+          {/* Spotify embed */}
+          <div className="bg-bg-card border border-bg-hover rounded-xl p-4">
+            <p className="text-foreground-muted text-xs uppercase tracking-wider mb-3 flex items-center gap-2">
+              <svg viewBox="0 0 24 24" width={14} fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.371-.721.49-1.101.241-3.021-1.858-6.832-2.278-11.322-1.237-.422.1-.851-.16-.949-.584-.1-.421.16-.85.584-.949 4.91-1.121 9.121-.641 12.511 1.431.371.24.49.721.241 1.1h.036zm1.471-3.27c-.301.459-.917.6-1.379.301-3.459-2.131-8.729-2.75-12.812-1.509-.518.16-1.06-.129-1.221-.648-.159-.52.13-1.061.649-1.221 4.671-1.42 10.48-.729 14.47 1.72.461.3.601.916.3 1.378l-.007-.021zm.129-3.4c-4.149-2.469-11-2.699-14.96-1.492-.638.189-1.31-.169-1.5-.809-.189-.638.17-1.31.811-1.499 4.55-1.381 12.119-1.111 16.899 1.73.571.34.76 1.079.421 1.65-.34.57-1.08.76-1.65.42l-.021-.001z"/></svg>
+              Adicionar Spotify
+            </p>
+            <input
+              type="text"
+              value={spotifyInput}
+              onChange={(e) => { setSpotifyInput(e.target.value); setSpotifyError('') }}
+              onKeyDown={(e) => { if (e.key === 'Enter') addSpotifyOverlay() }}
+              placeholder="Cole o link do Spotify aqui…"
+              className="w-full bg-bg border border-bg-hover rounded-lg px-3 py-2 text-sm text-foreground placeholder-foreground-muted focus:outline-none focus:border-accent/50 mb-2"
+            />
+            {spotifyError && <p className="text-red-400 text-xs mb-2">{spotifyError}</p>}
+            <button
+              onClick={addSpotifyOverlay}
+              disabled={!spotifyInput.trim()}
+              className="px-4 py-2 bg-[#1DB954] text-black text-xs font-semibold rounded-lg hover:bg-[#1ed760] disabled:opacity-40 transition-colors"
+            >
+              + Adicionar player
+            </button>
+            <p className="text-foreground-muted text-[10px] mt-2">
+              Funciona com playlists, álbuns, tracks, podcasts e artistas do Spotify.
+            </p>
           </div>
 
           {/* Lista */}

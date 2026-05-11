@@ -31,6 +31,28 @@ function StaticOverlay({ item }: { item: MediaOverlay }) {
   const positionStyle = buildPositionStyle(item)
   const rootClass = item.hideOnMobile ? 'hidden lg:block' : 'block'
 
+  if (item.type === 'spotify') {
+    return (
+      <div
+        className={rootClass}
+        style={{
+          ...positionStyle,
+          width: `${item.width}vw`,
+          height: item.height ?? 152,
+          zIndex: item.zIndex,
+        }}
+      >
+        <iframe
+          src={item.src}
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          allowFullScreen
+          loading="lazy"
+          style={{ width: '100%', height: '100%', border: 'none', borderRadius: 12 }}
+        />
+      </div>
+    )
+  }
+
   const mediaStyle: React.CSSProperties = {
     width: '100%',
     height: 'auto',
