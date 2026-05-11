@@ -101,6 +101,7 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
   const [selectedPage, setSelectedPage] = useState<string>('/')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [canvasW, setCanvasW] = useState(900)
+  const [iframeLoaded, setIframeLoaded] = useState(false)
   // src -> aspect ratio (natural)
   const [aspectRatios, setAspectRatios] = useState<Record<string, number>>({})
 
@@ -158,6 +159,11 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
     setAspectRatios((prev) => (prev[src] === ratio ? prev : { ...prev, [src]: ratio }))
   }, [])
 
+  useEffect(() => {
+    setIframeLoaded(false)
+    setSelectedId(null)
+  }, [selectedPage])
+
   // Fecha seleção ao clicar no canvas (não em item)
   function handleCanvasClick(e: React.MouseEvent) {
     if (e.target === e.currentTarget) setSelectedId(null)
@@ -191,7 +197,7 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
 
       {/* Legenda */}
       <p className="text-foreground-muted text-xs mb-3">
-        Arraste as mídias livremente no canvas. O fundo representa o site real nessa página.
+        Arraste as mídias livremente no canvas. O fundo mostra a página real do site.
       </p>
 
       {/* Canvas + Sidebar */}
@@ -206,23 +212,48 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
           {/* Área de posicionamento */}
           <div
             onClick={handleCanvasClick}
-            style={{
-              position: 'relative',
-              width: canvasW,
-              height: canvasH,
-              backgroundImage: "url('/bg.png')",
-              backgroundSize: `${canvasW}px auto`,
-              backgroundRepeat: 'repeat-y',
-              overflow: 'hidden',
-            }}
+            style={{ position: 'relative', width: canvasW, height: canvasH, overflow: 'hidden' }}
           >
-            {/* Grade de referência */}
+            {/* ── Iframe da página real (fundo de referência, sem interação) ── */}
+            <div style={{
+              position: 'absolute', top: 0, left: 0,
+              width: canvasW, height: canvasH,
+              overflow: 'hidden', pointerEvents: 'none', zIndex: 0,
+            }}>
+              {!iframeLoaded && (
+                <div style={{
+                  position: 'absolute', inset: 0, display: 'flex',
+                  alignItems: 'center', justifyContent: 'center',
+                  background: '#111', color: 'rgba(180,156,253,0.5)', fontSize: 12,
+                }}>
+                  Carregando preview…
+                </div>
+              )}
+              <iframe
+                key={selectedPage}
+                src={`${selectedPage}?noOverlays=1`}
+                onLoad={() => setIframeLoaded(true)}
+                style={{
+                  width: NATIVE_W,
+                  height: NATIVE_H,
+                  border: 'none',
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'top left',
+                  pointerEvents: 'none',
+                  display: 'block',
+                  opacity: iframeLoaded ? 1 : 0,
+                  transition: 'opacity 0.3s',
+                }}
+              />
+            </div>
+
+            {/* Grade de referência (leve, sobre o iframe) */}
             <div
               style={{
-                position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
+                position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1,
                 backgroundImage: `
-                  linear-gradient(rgba(180,156,253,0.06) 1px, transparent 1px),
-                  linear-gradient(90deg, rgba(180,156,253,0.06) 1px, transparent 1px)
+                  linear-gradient(rgba(180,156,253,0.04) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(180,156,253,0.04) 1px, transparent 1px)
                 `,
                 backgroundSize: `${80 * scale}px ${80 * scale}px`,
               }}
@@ -235,15 +266,12 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
                 style={{
                   position: 'absolute',
                   top: yNative * scale,
-                  left: 0,
-                  right: 0,
-                  height: 1,
-                  background: 'rgba(180,156,253,0.2)',
-                  pointerEvents: 'none',
-                  zIndex: 1,
+                  left: 0, right: 0, height: 1,
+                  background: 'rgba(180,156,253,0.25)',
+                  pointerEvents: 'none', zIndex: 2,
                 }}
               >
-                <span style={{ position: 'absolute', left: 4, top: -10, fontSize: 9, color: 'rgba(180,156,253,0.5)', userSelect: 'none' }}>
+                <span style={{ position: 'absolute', left: 4, top: -10, fontSize: 9, color: 'rgba(180,156,253,0.6)', userSelect: 'none' }}>
                   y={yNative}px
                 </span>
               </div>
@@ -280,7 +308,7 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
                     setSelectedId(item.id)
                   }}
                   style={{
-                    zIndex: item.zIndex,
+                    zIndex: item.zIndex + 10, // garante que ficam acima do iframe (zIndex 0)
                     outline: isSelected ? '2px solid #b49cfd' : '1px dashed rgba(180,156,253,0.35)',
                     outlineOffset: '2px',
                     cursor: 'move',

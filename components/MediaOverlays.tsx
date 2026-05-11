@@ -1,13 +1,20 @@
 import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
 import { useOverlays } from './OverlaysContext'
 import type { MediaOverlay } from '@/types/cms'
 
 export default function MediaOverlays() {
   const router = useRouter()
   const overlays = useOverlays()
+  const [hidden, setHidden] = useState(false)
+
+  useEffect(() => {
+    // Oculta overlays quando carregado como iframe de preview no admin
+    setHidden(router.query.noOverlays === '1')
+  }, [router.query.noOverlays])
 
   const items = overlays[router.pathname] || []
-  if (items.length === 0) return null
+  if (hidden || items.length === 0) return null
 
   return (
     <>
