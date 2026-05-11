@@ -1,4 +1,4 @@
-import { GetServerSideProps } from 'next'
+import { GetStaticProps } from 'next'
 import Layout from '@/components/Layout'
 import MarqueeGallery from '@/components/MarqueeGallery'
 import Testimonials from '@/components/Testimonials'
@@ -24,12 +24,12 @@ interface Props {
   testimonials: Testimonial[]
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
+export const getStaticProps: GetStaticProps<Props> = async () => {
   const [home, testimonials] = await Promise.all([
     getCmsData<HomeData>('home'),
     getCmsData<Testimonial[]>('testimonials'),
   ])
-  return { props: { home, testimonials } }
+  return { props: { home, testimonials }, revalidate: 30 }
 }
 
 export default function HomePage({ home, testimonials }: Props) {

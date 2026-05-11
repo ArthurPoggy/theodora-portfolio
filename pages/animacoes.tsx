@@ -1,4 +1,4 @@
-import { GetServerSideProps } from 'next'
+import { GetStaticProps } from 'next'
 import Layout from '@/components/Layout'
 import ImageGrid from '@/components/ImageGrid'
 import TypeWriter from '@/components/TypeWriter'
@@ -11,9 +11,9 @@ interface Props {
   videos: VideoItem[]
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
+export const getStaticProps: GetStaticProps<Props> = async () => {
   const data = await getCmsData<AnimationsData>('animations')
-  return { props: { gifs: data.gifs, videos: data.videos } }
+  return { props: { gifs: data.gifs, videos: data.videos }, revalidate: 30 }
 }
 
 export default function AnimacoesPage({ gifs, videos }: Props) {

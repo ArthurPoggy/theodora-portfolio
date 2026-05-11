@@ -1,4 +1,4 @@
-import { GetServerSideProps } from 'next'
+import { GetStaticProps } from 'next'
 import Layout from '@/components/Layout'
 import TypeWriter from '@/components/TypeWriter'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -14,9 +14,9 @@ interface Props {
   personagem: GalleryImage[]
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
+export const getStaticProps: GetStaticProps<Props> = async () => {
   const data = await getCmsData<GalleriesData>('galleries')
-  return { props: { cenario: data.conceptArt.cenario, personagem: data.conceptArt.personagem } }
+  return { props: { cenario: data.conceptArt.cenario, personagem: data.conceptArt.personagem }, revalidate: 30 }
 }
 
 export default function ConceptArtPage({ cenario, personagem }: Props) {

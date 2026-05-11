@@ -1,4 +1,4 @@
-import { GetServerSideProps } from 'next'
+import { GetStaticProps } from 'next'
 import Layout from '@/components/Layout'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -9,9 +9,9 @@ import { getCmsData } from '@/lib/cms-server'
 
 interface Props { about: AboutData }
 
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
+export const getStaticProps: GetStaticProps<Props> = async () => {
   const data = await getCmsData<AboutData>('about')
-  return { props: { about: data } }
+  return { props: { about: data }, revalidate: 30 }
 }
 
 export default function SobrePage({ about }: Props) {
@@ -36,9 +36,6 @@ export default function SobrePage({ about }: Props) {
                 >
                   <div className="relative w-full aspect-square overflow-hidden border-2 border-accent/30">
                     <Image src={about.photoSrc} alt="by.TheodoraD" fill className="object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-br from-bg-card to-accent/20 flex items-center justify-center">
-                      <span className="font-display text-accent text-8xl font-bold select-none">T</span>
-                    </div>
                   </div>
                 </motion.div>
 

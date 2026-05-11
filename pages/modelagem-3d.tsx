@@ -1,4 +1,4 @@
-import { GetServerSideProps } from 'next'
+import { GetStaticProps } from 'next'
 import Layout from '@/components/Layout'
 import ImageGrid from '@/components/ImageGrid'
 import TypeWriter from '@/components/TypeWriter'
@@ -8,9 +8,9 @@ import { getCmsData } from '@/lib/cms-server'
 
 interface Props { images: GalleryImage[] }
 
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
+export const getStaticProps: GetStaticProps<Props> = async () => {
   const data = await getCmsData<GalleriesData>('galleries')
-  return { props: { images: data.modelagem3d } }
+  return { props: { images: data.modelagem3d }, revalidate: 30 }
 }
 
 export default function Modelagem3DPage({ images }: Props) {
