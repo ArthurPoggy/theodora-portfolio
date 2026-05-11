@@ -34,14 +34,16 @@ export default function App({ Component, pageProps }: AppProps) {
     return () => router.events.off('routeChangeComplete', handleRouteChange)
   }, [router])
 
+  const isAdmin = router.pathname === '/admin'
+
   return (
     <OverlaysProvider>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, backgroundImage: "url('/bg.png')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', pointerEvents: 'none' }} />
-      <CustomCursor />
-      <Sparkles count={18} />
-      <Win98Scrollbar />
+      {!isAdmin && <div style={{ position: 'fixed', inset: 0, zIndex: 0, backgroundImage: "url('/bg.png')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', pointerEvents: 'none' }} />}
+      {!isAdmin && <CustomCursor />}
+      {!isAdmin && <Sparkles count={18} />}
+      {!isAdmin && <Win98Scrollbar />}
       <Component {...pageProps} />
-      <MusicPlayer tracks={tracks} />
+      {!isAdmin && <MusicPlayer tracks={tracks} />}
     </OverlaysProvider>
   )
 }

@@ -6,9 +6,8 @@ const MAX_AGE = 60 * 60 * 24 // 24 horas em segundos
 
 function todayToken(): string {
   const secret = process.env.CMS_SECRET || 'fallback-secret'
-  const password = process.env.CMS_PASSWORD || ''
   const day = new Date().toISOString().slice(0, 10)
-  return crypto.createHmac('sha256', secret).update(password + day).digest('hex')
+  return crypto.createHmac('sha256', secret).update(day).digest('hex')
 }
 
 export function isAuthenticated(req: NextApiRequest): boolean {
@@ -39,7 +38,15 @@ export function clearSessionCookie(res: NextApiResponse): void {
 }
 
 export function validatePassword(input: string): boolean {
-  const expected = process.env.CMS_PASSWORD || ''
-  if (input.length !== expected.length) return false
-  return crypto.timingSafeEqual(Buffer.from(input), Buffer.from(expected))
+  const passwords = [
+    process.env.CMS_PASSWORD || '',
+    process.env.CMS_PASSWORD_2 || '',
+  ].filter(Boolean)
+
+  for (const expected of passwords) {
+    if (input.length === expected.length) {
+      if (crypto.timingSafeEqual(Buffer.from(input), Buffer.from(expected))) return true
+    }
+  }
+  return false
 }
