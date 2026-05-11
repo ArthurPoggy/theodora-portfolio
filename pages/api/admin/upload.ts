@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { put } from '@vercel/blob'
 import { isAuthenticated } from '@/lib/auth'
-import { getRepoFileSha, putRepoImage } from '@/lib/github'
 import type { ImageUploadPayload } from '@/types/cms'
 
-const MAX_BYTES = 750 * 1024 // ~750 KB binário ≈ 1 MB em base64 (limite GitHub)
+const MAX_BYTES = 25 * 1024 * 1024 // 25 MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'audio/mpeg', 'audio/ogg', 'audio/wav', 'video/mp4']
 
-export const config = { api: { bodyParser: { sizeLimit: '5mb' } } }
+export const config = { api: { bodyParser: { sizeLimit: '40mb' } } }
 
 function sanitizeFilename(name: string): string {
   return name
@@ -32,28 +32,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ ok: false, error: 'Tipo de arquivo não permitido' })
   }
 
-  const binarySize = Buffer.from(base64, 'base64').length
-  if (binarySize > MAX_BYTES) {
+  const buffer = Buffer.from(base64, 'base64')
+  if (buffer.length > MAX_BYTES) {
     return res.status(400).json({
       ok: false,
-      error: `Arquivo muito grande (${Math.round(binarySize / 1024)} KB). Máximo: 750 KB. Use squoosh.app para comprimir.`,
+      error: `Arquivo muito grande (${Math.round(buffer.length / 1024 / 1024 * 10) / 10} MB). Máximo: 25 MB.`,
     })
   }
 
   const safeFilename = sanitizeFilename(filename)
-  const isAudio = mimeType.startsWith('audio/')
-  const isVideo = mimeType.startsWith('video/')
-  const baseDir = isAudio ? 'public/audio' : isVideo ? 'public/videos' : `public/images/${targetDir}`
-  const repoPath = `${baseDir}/${safeFilename}`
-  const publicPath = isAudio
-    ? `/audio/${safeFilename}`
-    : isVideo
-    ? `/videos/${safeFilename}`
-    : `/images/${targetDir}/${safeFilename}`
+  const blobPath = `media/${targetDir}/${safeFilename}`
 
   try {
-    const existingSha = await getRepoFileSha(repoPath)
-    await putRepoImage(repoPath, base64, `cms: upload ${safeFilename}`, existingSha)
+    await put(blobPath, buffer, {
+      access: 'private',
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      contentType: mimeType,
+    })
+    // O publicPath aponta para a rota proxy que serve o blob autenticado
+    const publicPath = `/api/media/${targetDir}/${safeFilename}`
     return res.status(200).json({ ok: true, data: { publicPath } })
   } catch (err) {
     return res.status(500).json({ ok: false, error: String(err) })
