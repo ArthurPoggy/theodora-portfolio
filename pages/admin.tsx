@@ -171,7 +171,7 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
   ]
 
   return (
-    <div className="min-h-screen bg-bg font-body" style={{ fontFamily: 'Patrick Hand, cursive' }}>
+    <div className="admin-page min-h-screen bg-bg font-body" style={{ fontFamily: 'Patrick Hand, cursive' }}>
       {/* Header */}
       <div className="sticky top-0 z-40 bg-bg border-b border-bg-card flex items-center justify-between px-6 py-3">
         <span className="font-display text-accent font-bold tracking-widest">CMS — By Theodora D.</span>

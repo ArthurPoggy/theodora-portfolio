@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
+import { Rnd } from 'react-rnd'
 import type { OverlaysData, MediaOverlay } from '@/types/cms'
 import ImageUploader from './ImageUploader'
 import OverlayPropsPanel from './OverlayPropsPanel'
@@ -22,11 +23,10 @@ const PAGES: { route: string; label: string }[] = [
   { route: '/contato', label: 'Contato' },
 ]
 
-const VIEWPORTS: { label: string; width: number }[] = [
-  { label: '🖥 Desktop 1440', width: 1440 },
-  { label: '📱 Tablet 768', width: 768 },
-  { label: '📲 Mobile 375', width: 375 },
-]
+// Largura nativa do canvas (representa a largura real do viewport 1440px)
+const NATIVE_W = 1440
+// Altura nativa — canvas rola verticalmente para representar a página inteira
+const NATIVE_H = 3200
 
 function detectMediaType(src: string): 'image' | 'video' {
   return /\.mp4$/i.test(src) ? 'video' : 'image'
@@ -34,7 +34,7 @@ function detectMediaType(src: string): 'image' | 'video' {
 
 function newOverlay(src: string): MediaOverlay {
   return {
-    id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `overlay-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `overlay-${Date.now()}`,
     src,
     type: detectMediaType(src),
     positioning: 'page',
@@ -49,28 +49,84 @@ function newOverlay(src: string): MediaOverlay {
   }
 }
 
+// Converte coordenadas armazenadas → pixels no canvas (sempre top-left)
+function toCanvasPos(item: MediaOverlay, canvasW: number, canvasH: number, aspectRatio: number) {
+  const scale = canvasW / NATIVE_W
+  const w = (item.width / 100) * canvasW
+  const h = aspectRatio > 0 ? w / aspectRatio : w
+
+  let x: number
+  if (item.anchor === 'tl' || item.anchor === 'bl') {
+    x = (item.x / 100) * canvasW
+  } else {
+    x = canvasW - w - (item.x / 100) * canvasW
+  }
+
+  let y: number
+  if (item.anchor === 'tl' || item.anchor === 'tr') {
+    y = item.y * scale
+  } else {
+    y = canvasH - h - item.y * scale
+  }
+
+  return { x, y, w, h }
+}
+
+// Converte pixels do canvas após drag → coordenadas armazenadas
+function fromCanvasPos(
+  xPx: number, yPx: number,
+  item: MediaOverlay,
+  canvasW: number, canvasH: number,
+  widthPx: number, heightPx: number
+) {
+  const scale = canvasW / NATIVE_W
+  let x: number
+  if (item.anchor === 'tl' || item.anchor === 'bl') {
+    x = (xPx / canvasW) * 100
+  } else {
+    x = ((canvasW - widthPx - xPx) / canvasW) * 100
+  }
+
+  let y: number
+  if (item.anchor === 'tl' || item.anchor === 'tr') {
+    y = yPx / scale
+  } else {
+    y = (canvasH - heightPx - yPx) / scale
+  }
+
+  return { x: Math.round(x * 100) / 100, y: Math.round(y) }
+}
+
 export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) {
   const [selectedPage, setSelectedPage] = useState<string>('/')
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [viewportWidth, setViewportWidth] = useState<number>(1440)
-  const [iframeReady, setIframeReady] = useState(false)
+  const [canvasW, setCanvasW] = useState(900)
+  // src -> aspect ratio (natural)
+  const [aspectRatios, setAspectRatios] = useState<Record<string, number>>({})
 
-  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const canvasContainerRef = useRef<HTMLDivElement>(null)
   const dataRef = useRef<OverlaysData>(data)
-  const fromIframeRef = useRef(false)
   dataRef.current = data
+
+  // Mede a largura real do container do canvas
+  useEffect(() => {
+    const el = canvasContainerRef.current
+    if (!el) return
+    const ro = new ResizeObserver(([entry]) => setCanvasW(entry.contentRect.width))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  const scale = canvasW / NATIVE_W
+  const canvasH = NATIVE_H * scale
 
   const pageOverlays = data[selectedPage] || []
   const selected = pageOverlays.find((o) => o.id === selectedId) || null
 
-  // ── Mutações no estado de overlays ─────────────────────────────────
   function setPageOverlays(list: MediaOverlay[]) {
     const next = { ...dataRef.current }
-    if (list.length === 0) {
-      delete next[selectedPage]
-    } else {
-      next[selectedPage] = list
-    }
+    if (list.length === 0) delete next[selectedPage]
+    else next[selectedPage] = list
     onChange(next)
   }
 
@@ -92,179 +148,249 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
     setSelectedId(created.id)
   }
 
-  function moveZ(id: string, direction: 1 | -1) {
+  function moveZ(id: string, dir: 1 | -1) {
     const overlay = (dataRef.current[selectedPage] || []).find((o) => o.id === id)
     if (!overlay) return
-    updateOverlay(id, { zIndex: Math.max(2, Math.min(29, overlay.zIndex + direction)) })
+    updateOverlay(id, { zIndex: Math.max(2, Math.min(29, overlay.zIndex + dir)) })
   }
 
-  // ── postMessage: iframe → admin ────────────────────────────────────
-  useEffect(() => {
-    function handleMessage(e: MessageEvent) {
-      if (e.origin !== window.location.origin) return
-      const msg = e.data
-      if (!msg || typeof msg !== 'object') return
+  const registerAspectRatio = useCallback((src: string, ratio: number) => {
+    setAspectRatios((prev) => (prev[src] === ratio ? prev : { ...prev, [src]: ratio }))
+  }, [])
 
-      if (msg.type === 'overlay-iframe-ready') {
-        setIframeReady(true)
-        // Envia estado atual pro iframe
-        sendOverlaysToIframe(dataRef.current)
-      } else if (msg.type === 'overlay-update' && msg.id && msg.patch) {
-        fromIframeRef.current = true
-        updateOverlay(msg.id, msg.patch)
-      } else if (msg.type === 'overlay-select') {
-        setSelectedId(msg.id || null)
-      }
-    }
-    window.addEventListener('message', handleMessage)
-    return () => window.removeEventListener('message', handleMessage)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedPage])
-
-  // ── Sync admin → iframe quando state muda (debounced) ─────────────
-  useEffect(() => {
-    if (fromIframeRef.current) {
-      fromIframeRef.current = false
-      return
-    }
-    if (!iframeReady) return
-    const t = setTimeout(() => {
-      sendOverlaysToIframe(data)
-    }, 150)
-    return () => clearTimeout(t)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, iframeReady])
-
-  // Quando seleção muda, sincroniza com iframe
-  useEffect(() => {
-    if (!iframeReady) return
-    iframeRef.current?.contentWindow?.postMessage(
-      { type: 'set-selection', id: selectedId },
-      window.location.origin
-    )
-  }, [selectedId, iframeReady])
-
-  // Quando muda de página, reset iframe ready
-  useEffect(() => {
-    setIframeReady(false)
-    setSelectedId(null)
-  }, [selectedPage])
-
-  function sendOverlaysToIframe(d: OverlaysData) {
-    iframeRef.current?.contentWindow?.postMessage(
-      { type: 'set-overlays', data: d },
-      window.location.origin
-    )
+  // Fecha seleção ao clicar no canvas (não em item)
+  function handleCanvasClick(e: React.MouseEvent) {
+    if (e.target === e.currentTarget) setSelectedId(null)
   }
 
   return (
     <div>
-      {/* Page selector + viewport simulator */}
-      <div className="flex flex-wrap items-end gap-4 mb-4">
-        <div className="flex-1 min-w-[300px]">
-          <label className="block text-foreground-muted text-xs uppercase tracking-wider mb-2">Página</label>
-          <div className="flex flex-wrap gap-2">
-            {PAGES.map((p) => {
-              const count = data[p.route]?.length || 0
-              const active = selectedPage === p.route
+      {/* Page selector */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {PAGES.map((p) => {
+          const count = data[p.route]?.length || 0
+          const active = selectedPage === p.route
+          return (
+            <button
+              key={p.route}
+              onClick={() => { setSelectedPage(p.route); setSelectedId(null) }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                active ? 'bg-accent text-bg' : 'bg-bg-card border border-bg-hover text-foreground-muted hover:border-accent/40'
+              }`}
+            >
+              {p.label}
+              {count > 0 && (
+                <span className={`text-[10px] px-1.5 rounded-full ${active ? 'bg-bg/30 text-bg' : 'bg-accent/20 text-accent'}`}>
+                  {count}
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Legenda */}
+      <p className="text-foreground-muted text-xs mb-3">
+        Arraste as mídias livremente no canvas. O fundo representa o site real nessa página.
+      </p>
+
+      {/* Canvas + Sidebar */}
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4 items-start">
+
+        {/* Canvas */}
+        <div
+          ref={canvasContainerRef}
+          className="rounded-xl border border-bg-hover overflow-auto relative"
+          style={{ maxHeight: '75vh', background: '#111' }}
+        >
+          {/* Área de posicionamento */}
+          <div
+            onClick={handleCanvasClick}
+            style={{
+              position: 'relative',
+              width: canvasW,
+              height: canvasH,
+              backgroundImage: "url('/bg.png')",
+              backgroundSize: `${canvasW}px auto`,
+              backgroundRepeat: 'repeat-y',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Grade de referência */}
+            <div
+              style={{
+                position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
+                backgroundImage: `
+                  linear-gradient(rgba(180,156,253,0.06) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(180,156,253,0.06) 1px, transparent 1px)
+                `,
+                backgroundSize: `${80 * scale}px ${80 * scale}px`,
+              }}
+            />
+
+            {/* Régua de referência (pixels Y nativos) */}
+            {[500, 1000, 1500, 2000, 2500, 3000].map((yNative) => (
+              <div
+                key={yNative}
+                style={{
+                  position: 'absolute',
+                  top: yNative * scale,
+                  left: 0,
+                  right: 0,
+                  height: 1,
+                  background: 'rgba(180,156,253,0.2)',
+                  pointerEvents: 'none',
+                  zIndex: 1,
+                }}
+              >
+                <span style={{ position: 'absolute', left: 4, top: -10, fontSize: 9, color: 'rgba(180,156,253,0.5)', userSelect: 'none' }}>
+                  y={yNative}px
+                </span>
+              </div>
+            ))}
+
+            {/* Items */}
+            {pageOverlays.map((item) => {
+              const ar = aspectRatios[item.src] || 1
+              const { x, y, w, h } = toCanvasPos(item, canvasW, canvasH, ar)
+              const isSelected = selectedId === item.id
+
               return (
-                <button
-                  key={p.route}
-                  onClick={() => setSelectedPage(p.route)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
-                    active ? 'bg-accent text-bg' : 'bg-bg-card border border-bg-hover text-foreground-muted hover:border-accent/40'
-                  }`}
+                <Rnd
+                  key={item.id}
+                  position={{ x, y }}
+                  size={{ width: w, height: h }}
+                  lockAspectRatio={ar > 0 ? ar : false}
+                  enableResizing={{
+                    topLeft: true, topRight: true, bottomLeft: true, bottomRight: true,
+                    top: false, bottom: false, left: false, right: false,
+                  }}
+                  bounds="parent"
+                  onDragStop={(_e, d) => {
+                    const pos = fromCanvasPos(d.x, d.y, item, canvasW, canvasH, w, h)
+                    updateOverlay(item.id, pos)
+                  }}
+                  onResizeStop={(_e, _dir, ref, _delta, pos) => {
+                    const newW = (ref.offsetWidth / canvasW) * 100
+                    const newPos = fromCanvasPos(pos.x, pos.y, item, canvasW, canvasH, ref.offsetWidth, ref.offsetHeight)
+                    updateOverlay(item.id, { ...newPos, width: newW })
+                  }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation()
+                    setSelectedId(item.id)
+                  }}
+                  style={{
+                    zIndex: item.zIndex,
+                    outline: isSelected ? '2px solid #b49cfd' : '1px dashed rgba(180,156,253,0.35)',
+                    outlineOffset: '2px',
+                    cursor: 'move',
+                    opacity: item.visible ? 1 : 0.35,
+                  }}
                 >
-                  <span>{p.label}</span>
-                  {count > 0 && (
-                    <span className={`text-[10px] px-1.5 rounded-full ${active ? 'bg-bg/30 text-bg' : 'bg-accent/20 text-accent'}`}>
-                      {count}
-                    </span>
+                  <div style={{ width: '100%', height: '100%', transform: `rotate(${item.rotation}deg)` }}>
+                    {item.type === 'video' ? (
+                      <video
+                        src={item.src}
+                        autoPlay loop muted playsInline
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }}
+                      />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={item.src}
+                        alt=""
+                        draggable={false}
+                        onLoad={(e) => {
+                          const img = e.currentTarget
+                          if (img.naturalWidth && img.naturalHeight) {
+                            registerAspectRatio(item.src, img.naturalWidth / img.naturalHeight)
+                          }
+                        }}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none', userSelect: 'none' }}
+                      />
+                    )}
+                  </div>
+
+                  {/* Label ao selecionar */}
+                  {isSelected && (
+                    <div style={{
+                      position: 'absolute', top: -20, left: 0,
+                      background: '#b49cfd', color: '#0f0f0f',
+                      fontSize: 9, padding: '1px 5px', borderRadius: 3,
+                      whiteSpace: 'nowrap', pointerEvents: 'none',
+                    }}>
+                      {item.src.split('/').pop()} · z{item.zIndex}
+                    </div>
                   )}
-                </button>
+                </Rnd>
               )
             })}
           </div>
         </div>
 
-        <div>
-          <label className="block text-foreground-muted text-xs uppercase tracking-wider mb-2">Simular viewport</label>
-          <div className="flex gap-1">
-            {VIEWPORTS.map((v) => (
-              <button
-                key={v.width}
-                onClick={() => setViewportWidth(v.width)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  viewportWidth === v.width ? 'bg-accent text-bg' : 'bg-bg-card border border-bg-hover text-foreground-muted hover:border-accent/40'
-                }`}
-              >
-                {v.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Split: iframe + sidebar */}
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4">
-        {/* Iframe container */}
-        <div className="bg-bg-card border border-bg-hover rounded-xl overflow-hidden">
-          <div className="bg-bg px-3 py-1.5 text-foreground-muted text-xs flex items-center justify-between border-b border-bg-hover">
-            <span className="font-mono">{selectedPage}?adminEdit=1</span>
-            <span className="text-[10px]">{viewportWidth}px {iframeReady ? '● conectado' : '○ carregando…'}</span>
-          </div>
-          <div className="overflow-auto bg-black/40" style={{ maxHeight: '70vh' }}>
-            <iframe
-              ref={iframeRef}
-              key={selectedPage}
-              src={`${selectedPage}?adminEdit=1`}
-              style={{ width: viewportWidth, height: '70vh', border: 'none', display: 'block', background: 'white' }}
-              title="Preview do site para edição"
-            />
-          </div>
-        </div>
-
-        {/* Sidebar: lista + props */}
+        {/* Sidebar */}
         <div className="space-y-4">
           {/* Upload */}
           <div className="bg-bg-card border border-bg-hover rounded-xl p-4">
+            <p className="text-foreground-muted text-xs uppercase tracking-wider mb-3">Adicionar mídia</p>
             <ImageUploader
               onUpload={(src) => addOverlay(src)}
               targetDir="overlays"
               accept="image/*,video/mp4"
-              label="Adicionar mídia"
+              label="Upload de imagem ou vídeo"
             />
           </div>
 
-          {/* Lista de overlays */}
+          {/* Lista */}
           <div className="bg-bg-card border border-bg-hover rounded-xl p-4">
-            <h3 className="text-foreground font-semibold text-xs uppercase tracking-wider mb-3">
+            <p className="text-foreground-muted text-xs uppercase tracking-wider mb-3">
               Mídias em {PAGES.find((p) => p.route === selectedPage)?.label} ({pageOverlays.length})
-            </h3>
+            </p>
             {pageOverlays.length === 0 ? (
-              <p className="text-foreground-muted text-xs">Nenhuma mídia. Adicione com o botão acima.</p>
+              <p className="text-foreground-muted text-xs">Nenhuma mídia. Faça upload acima.</p>
             ) : (
-              <div className="space-y-1.5 max-h-60 overflow-y-auto">
-                {pageOverlays.map((o) => (
-                  <OverlayRow
-                    key={o.id}
-                    overlay={o}
-                    selected={selectedId === o.id}
-                    onSelect={() => setSelectedId(o.id)}
-                    onDelete={() => deleteOverlay(o.id)}
-                    onToggleVisible={() => updateOverlay(o.id, { visible: !o.visible })}
-                    onZUp={() => moveZ(o.id, 1)}
-                    onZDown={() => moveZ(o.id, -1)}
-                  />
-                ))}
+              <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                {pageOverlays.map((o) => {
+                  const filename = o.src.split('/').pop() || o.src
+                  return (
+                    <div
+                      key={o.id}
+                      onClick={() => setSelectedId(o.id)}
+                      className={`flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors ${
+                        selectedId === o.id ? 'bg-accent/10 border border-accent/40' : 'bg-bg border border-bg-hover hover:border-accent/30'
+                      }`}
+                    >
+                      <div className="w-9 h-9 flex-shrink-0 bg-black/40 rounded overflow-hidden flex items-center justify-center">
+                        {o.type === 'video' ? (
+                          <video src={o.src} muted loop autoPlay playsInline className="w-full h-full object-contain" />
+                        ) : (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={o.src} alt="" className="w-full h-full object-contain" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-foreground text-xs truncate" title={filename}>{filename}</p>
+                        <p className="text-foreground-muted text-[10px]">z:{o.zIndex} · {o.width.toFixed(1)}%</p>
+                      </div>
+                      <div className="flex items-center gap-0.5 flex-shrink-0">
+                        <Btn title={o.visible ? 'Esconder' : 'Mostrar'} onClick={(e) => { e.stopPropagation(); updateOverlay(o.id, { visible: !o.visible }) }}>
+                          {o.visible ? '👁' : '🚫'}
+                        </Btn>
+                        <Btn title="Z+1" onClick={(e) => { e.stopPropagation(); moveZ(o.id, 1) }}>↑</Btn>
+                        <Btn title="Z-1" onClick={(e) => { e.stopPropagation(); moveZ(o.id, -1) }}>↓</Btn>
+                        <Btn danger title="Remover" onClick={(e) => { e.stopPropagation(); if (confirm(`Remover ${filename}?`)) deleteOverlay(o.id) }}>🗑</Btn>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
 
-          {/* Props panel */}
+          {/* Propriedades */}
           {selected ? (
             <div className="bg-bg-card border border-bg-hover rounded-xl p-4">
-              <h3 className="text-foreground font-semibold text-xs uppercase tracking-wider mb-3">Propriedades</h3>
+              <p className="text-foreground-muted text-xs uppercase tracking-wider mb-3">Propriedades</p>
               <OverlayPropsPanel
                 overlay={selected}
                 onChange={(patch) => updateOverlay(selected.id, patch)}
@@ -272,7 +398,7 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
             </div>
           ) : (
             <div className="bg-bg border border-dashed border-bg-hover rounded-xl p-4 text-center">
-              <p className="text-foreground-muted text-xs">Clique numa mídia (lista ou iframe) para editar</p>
+              <p className="text-foreground-muted text-xs">Clique numa mídia para editar suas propriedades</p>
             </div>
           )}
         </div>
@@ -281,50 +407,12 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
   )
 }
 
-interface OverlayRowProps {
-  overlay: MediaOverlay
-  selected: boolean
-  onSelect: () => void
-  onDelete: () => void
-  onToggleVisible: () => void
-  onZUp: () => void
-  onZDown: () => void
-}
-
-function OverlayRow({ overlay, selected, onSelect, onDelete, onToggleVisible, onZUp, onZDown }: OverlayRowProps) {
-  const filename = overlay.src.split('/').pop() || overlay.src
-  return (
-    <div
-      onClick={onSelect}
-      className={`flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors ${
-        selected ? 'bg-accent/10 border border-accent/40' : 'bg-bg border border-bg-hover hover:border-accent/30'
-      }`}
-    >
-      <div className="w-9 h-9 flex-shrink-0 bg-black/40 rounded overflow-hidden flex items-center justify-center">
-        {overlay.type === 'video' ? (
-          <video src={overlay.src} muted loop autoPlay playsInline className="w-full h-full object-contain" />
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={overlay.src} alt="" className="w-full h-full object-contain" />
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-foreground text-xs truncate" title={filename}>{filename}</p>
-        <p className="text-foreground-muted text-[10px]">z:{overlay.zIndex} r:{overlay.rotation}°</p>
-      </div>
-      <div className="flex items-center gap-0.5 flex-shrink-0">
-        <IconBtn title={overlay.visible ? 'Esconder' : 'Mostrar'} onClick={(e) => { e.stopPropagation(); onToggleVisible() }}>
-          {overlay.visible ? '👁' : '🚫'}
-        </IconBtn>
-        <IconBtn title="Z+1" onClick={(e) => { e.stopPropagation(); onZUp() }}>↑</IconBtn>
-        <IconBtn title="Z-1" onClick={(e) => { e.stopPropagation(); onZDown() }}>↓</IconBtn>
-        <IconBtn title="Remover" onClick={(e) => { e.stopPropagation(); if (confirm(`Remover ${filename}?`)) onDelete() }} danger>🗑</IconBtn>
-      </div>
-    </div>
-  )
-}
-
-function IconBtn({ children, onClick, title, danger }: { children: React.ReactNode; onClick: (e: React.MouseEvent) => void; title: string; danger?: boolean }) {
+function Btn({ children, onClick, title, danger }: {
+  children: React.ReactNode
+  onClick: (e: React.MouseEvent) => void
+  title: string
+  danger?: boolean
+}) {
   return (
     <button
       type="button"

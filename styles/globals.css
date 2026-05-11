@@ -107,3 +107,8 @@ html { scrollbar-width: none; }
 
 /* Music player progress */
 .music-progress { cursor: pointer; }
+
+/* Admin: restaura cursor nativo */
+.admin-page, .admin-page * { cursor: auto !important; }
+.admin-page button, .admin-page a, .admin-page [role="button"] { cursor: pointer !important; }
+.admin-page input, .admin-page select, .admin-page textarea { cursor: text !important; }
