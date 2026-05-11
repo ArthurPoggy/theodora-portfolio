@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { isAuthenticated } from '@/lib/auth'
-import { getRepoFile, putRepoFile } from '@/lib/github'
+import { getBlobSection, putBlobSection } from '@/lib/blob'
 import path from 'path'
 import fs from 'fs'
 
@@ -17,42 +17,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ ok: false, error: 'Não autorizado' })
   }
 
-  const filePath = `data/${section}.json`
-
   if (req.method === 'GET') {
+    // Tenta Blob primeiro; fallback para filesystem local (antes da primeira gravação)
+    const blobContent = await getBlobSection(section)
+    if (blobContent) {
+      return res.status(200).json({ ok: true, data: JSON.parse(blobContent) })
+    }
     try {
-      const { content, sha } = await getRepoFile(filePath)
-      return res.status(200).json({ ok: true, data: JSON.parse(content), sha })
+      const localPath = path.join(process.cwd(), 'data', `${section}.json`)
+      const content = fs.readFileSync(localPath, 'utf-8')
+      return res.status(200).json({ ok: true, data: JSON.parse(content) })
     } catch {
-      // Fallback: ler do sistema de arquivos local (ambiente de dev)
-      try {
-        const localPath = path.join(process.cwd(), filePath)
-        const content = fs.readFileSync(localPath, 'utf-8')
-        return res.status(200).json({ ok: true, data: JSON.parse(content), sha: undefined })
-      } catch {
-        return res.status(500).json({ ok: false, error: 'Erro ao ler dados' })
-      }
+      return res.status(500).json({ ok: false, error: 'Dados não encontrados' })
     }
   }
 
   if (req.method === 'PUT') {
-    const { data, sha } = req.body as { data: unknown; sha?: string }
-    if (!data) return res.status(400).json({ ok: false, error: 'Dados ausentes' })
-
-    const content = JSON.stringify(data, null, 2)
-
+    const { data } = req.body as { data: unknown }
+    if (data === undefined || data === null) {
+      return res.status(400).json({ ok: false, error: 'Dados ausentes' })
+    }
     try {
-      // Obter SHA atual se não foi enviado
-      let currentSha = sha
-      if (!currentSha) {
-        try {
-          const current = await getRepoFile(filePath)
-          currentSha = current.sha
-        } catch {
-          // arquivo novo, sem SHA
-        }
-      }
-      await putRepoFile(filePath, content, `cms: atualizar ${section}`, currentSha)
+      await putBlobSection(section, JSON.stringify(data, null, 2))
       return res.status(200).json({ ok: true })
     } catch (err) {
       return res.status(500).json({ ok: false, error: String(err) })

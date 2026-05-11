@@ -143,7 +143,7 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
         body: JSON.stringify({ data }),
       })
       const json = await res.json()
-      setSaveMsg(json.ok ? '✓ Salvo! O site atualizará em ~3 minutos.' : `Erro: ${json.error}`)
+      setSaveMsg(json.ok ? '✓ Salvo! As mudanças aparecem em até 30 segundos.' : `Erro: ${json.error}`)
     } catch (e) {
       setSaveMsg(`Erro: ${String(e)}`)
     } finally {
