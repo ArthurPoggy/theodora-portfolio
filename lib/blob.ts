@@ -26,6 +26,7 @@ export async function putBlobSection(section: string, content: string): Promise<
   await put(`${PREFIX}${section}.json`, content, {
     access: 'private',
     addRandomSuffix: false,
+    allowOverwrite: true,
     contentType: 'application/json',
     cacheControlMaxAge: 0,
   })
