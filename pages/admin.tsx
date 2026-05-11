@@ -3,7 +3,7 @@ import type { GetServerSideProps } from 'next'
 import { isAuthenticated } from '@/lib/auth'
 import type {
   GalleriesData, AnimationsData, AboutData,
-  Testimonial, Track, HomeData, SocialLinks,
+  Testimonial, Track, HomeData, SocialLinks, OverlaysData,
 } from '@/types/cms'
 import GalleryEditor from '@/components/admin/GalleryEditor'
 import VideoEditor from '@/components/admin/VideoEditor'
@@ -11,10 +11,11 @@ import TextEditor from '@/components/admin/TextEditor'
 import SkillsEditor from '@/components/admin/SkillsEditor'
 import TestimonialsEditor from '@/components/admin/TestimonialsEditor'
 import TracksEditor from '@/components/admin/TracksEditor'
+import OverlaysEditor from '@/components/admin/OverlaysEditor'
 import ImageUploader from '@/components/admin/ImageUploader'
 import SaveButton from '@/components/admin/SaveButton'
 
-type Section = 'galerias' | 'animacoes' | 'sobre' | 'depoimentos' | 'playlist' | 'home' | 'sociais'
+type Section = 'galerias' | 'animacoes' | 'sobre' | 'depoimentos' | 'playlist' | 'home' | 'sociais' | 'midias'
 type GalleryKey = 'modelagem3d' | 'ilustracoes' | 'cenario' | 'personagem' | 'trabalhosFisicos' | 'encomendados' | 'branding' | 'nsfw'
 
 const GALLERY_LABELS: Record<GalleryKey, string> = {
@@ -98,6 +99,7 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
   const [tracks, setTracks] = useState<Track[] | null>(null)
   const [home, setHome] = useState<HomeData | null>(null)
   const [social, setSocial] = useState<SocialLinks | null>(null)
+  const [overlays, setOverlays] = useState<OverlaysData | null>(null)
 
   // Save states
   const [saving, setSaving] = useState(false)
@@ -106,10 +108,11 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
   const sectionDataMap: Record<Section, unknown> = {
     galerias: galleries, animacoes: animations, sobre: about,
     depoimentos: testimonials, playlist: tracks, home, sociais: social,
+    midias: overlays,
   }
 
   const load = useCallback(async (sec: Section) => {
-    const key = sec === 'galerias' ? 'galleries' : sec === 'depoimentos' ? 'testimonials' : sec === 'playlist' ? 'tracks' : sec === 'sociais' ? 'social' : sec === 'animacoes' ? 'animations' : sec === 'sobre' ? 'about' : sec
+    const key = sec === 'galerias' ? 'galleries' : sec === 'depoimentos' ? 'testimonials' : sec === 'playlist' ? 'tracks' : sec === 'sociais' ? 'social' : sec === 'animacoes' ? 'animations' : sec === 'sobre' ? 'about' : sec === 'midias' ? 'overlays' : sec
     try {
       const res = await fetch(`/api/admin/data/${key}`, { credentials: 'include' })
       const json = await res.json()
@@ -121,15 +124,16 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
       else if (sec === 'playlist') setTracks(json.data)
       else if (sec === 'home') setHome(json.data)
       else if (sec === 'sociais') setSocial(json.data)
+      else if (sec === 'midias') setOverlays(json.data || {})
     } catch {}
   }, [])
 
   useEffect(() => { if (authed) load(section) }, [authed, section, load])
 
   async function save() {
-    const key = section === 'galerias' ? 'galleries' : section === 'depoimentos' ? 'testimonials' : section === 'playlist' ? 'tracks' : section === 'sociais' ? 'social' : section === 'animacoes' ? 'animations' : section === 'sobre' ? 'about' : section
+    const key = section === 'galerias' ? 'galleries' : section === 'depoimentos' ? 'testimonials' : section === 'playlist' ? 'tracks' : section === 'sociais' ? 'social' : section === 'animacoes' ? 'animations' : section === 'sobre' ? 'about' : section === 'midias' ? 'overlays' : section
     const data = sectionDataMap[section]
-    if (!data) return
+    if (data === null || data === undefined) return
     setSaving(true)
     setSaveMsg('')
     try {
@@ -163,6 +167,7 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
     { key: 'playlist', label: 'Playlist' },
     { key: 'home', label: 'Home' },
     { key: 'sociais', label: 'Redes Sociais' },
+    { key: 'midias', label: 'Mídias' },
   ]
 
   return (
@@ -332,8 +337,21 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
             </div>
           )}
 
+          {/* ── MÍDIAS (Overlays) ── */}
+          {section === 'midias' && overlays !== null && (
+            <div>
+              <h2 className="text-2xl font-display font-bold text-foreground mb-2">Mídias decorativas</h2>
+              <p className="text-foreground-muted text-sm mb-6">
+                Adicione imagens, GIFs ou vídeos em qualquer página do site. Posicione com inputs numéricos.
+                Ajuste fino visual (drag/resize/rotate) chega na próxima fase.
+              </p>
+              <OverlaysEditor data={overlays} onChange={setOverlays} />
+              <SaveButton onClick={save} saving={saving} message={saveMsg} />
+            </div>
+          )}
+
           {/* Loading state */}
-          {!sectionDataMap[section] && (
+          {sectionDataMap[section] === null && (
             <div className="flex items-center gap-2 text-foreground-muted mt-12">
               <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
