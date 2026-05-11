@@ -37,6 +37,7 @@ export default function MediaOverlays() {
 }
 
 function StaticOverlay({ item }: { item: MediaOverlay }) {
+  console.log('[StaticOverlay] item:', item.src, '| visible:', item.visible, '| type:', item.type)
   if (!item.visible) return null
 
   const positionStyle = buildPositionStyle(item)
