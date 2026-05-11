@@ -1,11 +1,11 @@
-import { GetStaticProps } from 'next'
+import { GetServerSideProps } from 'next'
 import Layout from '@/components/Layout'
 import TypeWriter from '@/components/TypeWriter'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import Image from 'next/image'
 import type { GalleryImage, GalleriesData } from '@/types/cms'
-import galleriesData from '@/data/galleries.json'
+import { getCmsData } from '@/lib/cms-server'
 
 type Tab = 'cenario' | 'personagem'
 
@@ -14,8 +14,8 @@ interface Props {
   personagem: GalleryImage[]
 }
 
-export const getStaticProps: GetStaticProps<Props> = async () => {
-  const data = galleriesData as GalleriesData
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
+  const data = await getCmsData<GalleriesData>('galleries')
   return { props: { cenario: data.conceptArt.cenario, personagem: data.conceptArt.personagem } }
 }
 

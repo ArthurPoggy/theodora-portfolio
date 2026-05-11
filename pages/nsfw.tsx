@@ -1,15 +1,15 @@
-import { GetStaticProps } from 'next'
+import { GetServerSideProps } from 'next'
 import Layout from '@/components/Layout'
 import ImageGrid from '@/components/ImageGrid'
 import NsfwGate from '@/components/NsfwGate'
 import { motion } from 'framer-motion'
 import type { GalleryImage, GalleriesData } from '@/types/cms'
-import galleriesData from '@/data/galleries.json'
+import { getCmsData } from '@/lib/cms-server'
 
 interface Props { images: GalleryImage[] }
 
-export const getStaticProps: GetStaticProps<Props> = async () => {
-  const data = galleriesData as GalleriesData
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
+  const data = await getCmsData<GalleriesData>('galleries')
   return { props: { images: data.nsfw } }
 }
 

@@ -1,4 +1,4 @@
-import { GetStaticProps } from 'next'
+import { GetServerSideProps } from 'next'
 import Layout from '@/components/Layout'
 import MarqueeGallery from '@/components/MarqueeGallery'
 import Testimonials from '@/components/Testimonials'
@@ -8,8 +8,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { HomeData, Testimonial } from '@/types/cms'
-import homeData from '@/data/home.json'
-import testimonialsData from '@/data/testimonials.json'
+import { getCmsData } from '@/lib/cms-server'
 
 const GALLERY_PAGES = [
   { href: '/modelagem-3d', label: 'Modelagem 3D' },
@@ -25,13 +24,12 @@ interface Props {
   testimonials: Testimonial[]
 }
 
-export const getStaticProps: GetStaticProps<Props> = async () => {
-  return {
-    props: {
-      home: homeData as HomeData,
-      testimonials: testimonialsData as Testimonial[],
-    },
-  }
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
+  const [home, testimonials] = await Promise.all([
+    getCmsData<HomeData>('home'),
+    getCmsData<Testimonial[]>('testimonials'),
+  ])
+  return { props: { home, testimonials } }
 }
 
 export default function HomePage({ home, testimonials }: Props) {

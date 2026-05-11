@@ -1,16 +1,17 @@
-import { GetStaticProps } from 'next'
+import { GetServerSideProps } from 'next'
 import Layout from '@/components/Layout'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Win98Window from '@/components/Win98Window'
 import type { AboutData } from '@/types/cms'
-import aboutData from '@/data/about.json'
+import { getCmsData } from '@/lib/cms-server'
 
 interface Props { about: AboutData }
 
-export const getStaticProps: GetStaticProps<Props> = async () => {
-  return { props: { about: aboutData as AboutData } }
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
+  const data = await getCmsData<AboutData>('about')
+  return { props: { about: data } }
 }
 
 export default function SobrePage({ about }: Props) {

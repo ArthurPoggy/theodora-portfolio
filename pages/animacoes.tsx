@@ -1,18 +1,18 @@
-import { GetStaticProps } from 'next'
+import { GetServerSideProps } from 'next'
 import Layout from '@/components/Layout'
 import ImageGrid from '@/components/ImageGrid'
 import TypeWriter from '@/components/TypeWriter'
 import { motion } from 'framer-motion'
 import type { GalleryImage, VideoItem, AnimationsData } from '@/types/cms'
-import animationsData from '@/data/animations.json'
+import { getCmsData } from '@/lib/cms-server'
 
 interface Props {
   gifs: GalleryImage[]
   videos: VideoItem[]
 }
 
-export const getStaticProps: GetStaticProps<Props> = async () => {
-  const data = animationsData as AnimationsData
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
+  const data = await getCmsData<AnimationsData>('animations')
   return { props: { gifs: data.gifs, videos: data.videos } }
 }
 
