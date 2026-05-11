@@ -43,7 +43,9 @@ function StaticOverlay({ item }: { item: MediaOverlay }) {
   const rootClass = item.hideOnMobile ? 'hidden lg:block' : 'block'
 
   if (item.type === 'spotify') {
-    console.log('[StaticOverlay] renderizando Spotify:', item.src, '| posição:', positionStyle, '| visível:', item.visible)
+    // MusicPlayer=40, Win98Scrollbar=30 — Spotify precisa aparecer acima dos dois
+    const spotifyZ = Math.max(item.zIndex, 45)
+    console.log('[StaticOverlay] renderizando Spotify:', item.src, '| posição:', positionStyle, '| zIndex efetivo:', spotifyZ, '| visível:', item.visible)
     return (
       <div
         className={rootClass}
@@ -51,7 +53,7 @@ function StaticOverlay({ item }: { item: MediaOverlay }) {
           ...positionStyle,
           width: `${item.width}vw`,
           height: item.height ?? 152,
-          zIndex: item.zIndex,
+          zIndex: spotifyZ,
         }}
       >
         <iframe

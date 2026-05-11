@@ -165,7 +165,7 @@ export default function OverlayPropsPanel({ overlay, onChange }: OverlayPropsPan
             onChange={(rotation) => onChange({ rotation })}
           />
         )}
-        <NumInput label="Z-Index" hint="2-29 (maior = na frente)" value={overlay.zIndex} step={1} min={2} max={29} onChange={(zIndex) => onChange({ zIndex })} />
+        <NumInput label="Z-Index" hint="Spotify: use 45+ (MusicPlayer=40)" value={overlay.zIndex} step={1} min={2} max={99} onChange={(zIndex) => onChange({ zIndex })} />
       </div>
 
       {/* Toggles */}

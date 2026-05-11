@@ -73,7 +73,7 @@ function newSpotifyOverlay(embedUrl: string): MediaOverlay {
     width: 22,
     height: 152,
     rotation: 0,
-    zIndex: 20,
+    zIndex: 45, // acima do MusicPlayer (40) e Win98Scrollbar (30)
     visible: true,
     hideOnMobile: true,
   }
