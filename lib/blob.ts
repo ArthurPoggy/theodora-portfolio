@@ -2,14 +2,18 @@ import { put, list } from '@vercel/blob'
 
 const PREFIX = 'cms/'
 
-/** Lê um JSON do Blob. Retorna null se não existir. */
+/** Lê um JSON do Blob (store privado — usa token no header). */
 export async function getBlobSection(section: string): Promise<string | null> {
   try {
     const { blobs } = await list({ prefix: `${PREFIX}${section}.json`, limit: 1 })
     const blob = blobs.find((b) => b.pathname === `${PREFIX}${section}.json`)
     if (!blob) return null
-    // Adiciona timestamp para ignorar cache CDN e pegar a versão mais recente
-    const res = await fetch(`${blob.url}?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await fetch(blob.url, {
+      cache: 'no-store',
+      headers: {
+        Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
+      },
+    })
     if (!res.ok) return null
     return res.text()
   } catch {
@@ -20,7 +24,7 @@ export async function getBlobSection(section: string): Promise<string | null> {
 /** Grava um JSON no Blob (sobrescreve se já existir). */
 export async function putBlobSection(section: string, content: string): Promise<void> {
   await put(`${PREFIX}${section}.json`, content, {
-    access: 'public',
+    access: 'private',
     addRandomSuffix: false,
     contentType: 'application/json',
     cacheControlMaxAge: 0,
