@@ -6,14 +6,26 @@ const OverlaysContext = createContext<OverlaysData>({})
 export function OverlaysProvider({ children }: { children: ReactNode }) {
   const [overlays, setOverlays] = useState<OverlaysData>({})
 
-  // Initial fetch
-  useEffect(() => {
-    fetch('/api/public/overlays')
+  function fetchOverlays() {
+    fetch('/api/public/overlays', { cache: 'no-store' })
       .then((r) => r.json())
       .then((data) => {
         if (data && typeof data === 'object') setOverlays(data)
       })
       .catch(() => {})
+  }
+
+  // Fetch inicial
+  useEffect(() => {
+    fetchOverlays()
+  }, [])
+
+  // Repoll a cada 15s quando a página está visível
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!document.hidden) fetchOverlays()
+    }, 15000)
+    return () => clearInterval(interval)
   }, [])
 
   // postMessage sync: aceita atualizações vindas do parent (admin editor) quando estiver em iframe
