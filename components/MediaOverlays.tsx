@@ -9,11 +9,22 @@ export default function MediaOverlays() {
   const [hidden, setHidden] = useState(false)
 
   useEffect(() => {
-    // Oculta overlays quando carregado como iframe de preview no admin
     setHidden(router.query.noOverlays === '1')
   }, [router.query.noOverlays])
 
   const items = overlays[router.pathname] || []
+
+  useEffect(() => {
+    console.log('[MediaOverlays] pathname:', router.pathname)
+    console.log('[MediaOverlays] todos os overlays carregados:', overlays)
+    console.log('[MediaOverlays] itens nesta página:', items)
+    console.log('[MediaOverlays] hidden:', hidden)
+    const spotifyItems = items.filter((i) => i.type === 'spotify')
+    if (spotifyItems.length > 0) {
+      console.log('[MediaOverlays] Spotify encontrado:', spotifyItems)
+    }
+  }, [router.pathname, overlays, items, hidden])
+
   if (hidden || items.length === 0) return null
 
   return (
@@ -32,6 +43,7 @@ function StaticOverlay({ item }: { item: MediaOverlay }) {
   const rootClass = item.hideOnMobile ? 'hidden lg:block' : 'block'
 
   if (item.type === 'spotify') {
+    console.log('[StaticOverlay] renderizando Spotify:', item.src, '| posição:', positionStyle, '| visível:', item.visible)
     return (
       <div
         className={rootClass}
@@ -47,6 +59,8 @@ function StaticOverlay({ item }: { item: MediaOverlay }) {
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           allowFullScreen
           loading="lazy"
+          onLoad={() => console.log('[StaticOverlay] iframe Spotify carregou:', item.src)}
+          onError={() => console.error('[StaticOverlay] iframe Spotify ERRO ao carregar:', item.src)}
           style={{ width: '100%', height: '100%', border: 'none', borderRadius: 12 }}
         />
       </div>
