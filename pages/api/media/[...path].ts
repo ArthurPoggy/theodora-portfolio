@@ -8,25 +8,15 @@ export const config = {
 }
 
 interface CacheEntry {
-  url: string
+  url: string          // URL pública do CDN (apenas para blobs públicos)
+  downloadUrl: string  // URL assinada (funciona sem auth, expira em ~1h)
   isPublic: boolean
   cachedAt: number
 }
 
-// Cache em memória. URLs de blobs privados são signed e expiram em ~1h.
 const urlCache: Record<string, CacheEntry> = {}
-const PRIVATE_CACHE_TTL_MS = 50 * 60 * 1000 // 50 min (margem antes de expirar)
+const PRIVATE_CACHE_TTL_MS = 50 * 60 * 1000 // 50 min (margem antes de a signed URL expirar)
 
-/**
- * Proxy para paths /api/media/<dir>/<file>.
- *
- * - Blob público  → 308 redirect para CDN (browser cacheia, futuras requests vão direto)
- * - Blob privado  → stream autenticado
- *
- * Blobs privados são migrados para públicos automaticamente quando o admin
- * roda o botão "Reescrever paths" (migrate-urls). Após migração, o CMS
- * passa a referenciar a URL pública do CDN e o proxy deixa de ser necessário.
- */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405).end()
 
@@ -41,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const now = Date.now()
     let entry = urlCache[blobPath]
 
-    // Signed URLs de blobs privados expiram — recarrega antes do vencimento
+    // Blobs privados usam signed URLs (downloadUrl) que expiram em ~1h — recarrega antes
     const needsRefresh = !entry || (!entry.isPublic && now - entry.cachedAt > PRIVATE_CACHE_TTL_MS)
 
     if (needsRefresh) {
@@ -50,33 +40,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!blob) return res.status(404).end()
       entry = {
         url: blob.url,
+        downloadUrl: blob.downloadUrl,
         isPublic: blob.url.includes('.public.blob.vercel-storage.com'),
         cachedAt: now,
       }
       urlCache[blobPath] = entry
     }
 
-    // Público: redirect imutável — browser e CDN cacheia para sempre
+    // Público: redirect 308 permanente para CDN
     if (entry.isPublic) {
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
       res.setHeader('Location', entry.url)
       return res.status(308).end()
     }
 
-    // Privado: fetch autenticado + stream para o cliente
-    const upstream = await fetch(entry.url, {
-      headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` },
-    })
-
+    // Privado: busca via downloadUrl (assinada, não precisa de Authorization header)
+    // e serve inline (override do Content-Disposition: attachment que o Blob coloca)
+    const upstream = await fetch(entry.downloadUrl)
     if (!upstream.ok || !upstream.body) {
-      // URL pode ter expirado — limpa o cache e tenta uma vez
-      delete urlCache[blobPath]
+      delete urlCache[blobPath] // limpa cache se a signed URL expirou
       return res.status(upstream.status || 500).end()
     }
 
     const contentType = upstream.headers.get('content-type') || 'application/octet-stream'
     const contentLength = upstream.headers.get('content-length')
     res.setHeader('Content-Type', contentType)
+    res.setHeader('Content-Disposition', 'inline')
     res.setHeader('Cache-Control', 'public, max-age=3600')
     if (contentLength) res.setHeader('Content-Length', contentLength)
 

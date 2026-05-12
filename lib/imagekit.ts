@@ -22,6 +22,22 @@ export interface ImageKitOpts {
 }
 
 /**
+ * Converte URLs problemáticas de mídia para formas acessíveis pelo browser:
+ *   - URLs privadas do Vercel Blob → path do proxy /api/media/...
+ *
+ * Chame isso antes de usar qualquer src em <img>, next/image ou buildImageKitUrl.
+ */
+export function normalizeMediaSrc(src: string): string {
+  if (!src) return src
+  const privateMatch = src.match(/\.private\.blob\.vercel-storage\.com\/(media\/.+?)(?:\?|$)/)
+  if (privateMatch) {
+    // "media/gifs/star-1-.gif" → "/api/media/gifs/star-1-.gif"
+    return `/api/media/${privateMatch[1].slice('media/'.length)}`
+  }
+  return src
+}
+
+/**
  * Constrói URL no modo Full-URL do ImageKit:
  *   https://ik.imagekit.io/{id}/tr:w-800,q-80,f-auto/<url-completa-da-imagem>
  *
@@ -29,6 +45,10 @@ export interface ImageKitOpts {
  * Funciona com qualquer URL pública — sem precisar de "External Storage" configurado.
  */
 export function buildImageKitUrl(src: string, opts: ImageKitOpts = {}): string {
+  // Normaliza antes de qualquer coisa: URLs privadas viram /api/media/...
+  const normalized = normalizeMediaSrc(src)
+  if (normalized !== src) return normalized  // privado → proxy, skip ImageKit
+
   if (!IK_ENDPOINT) return src
   if (!src) return src
   if (src.startsWith('data:') || src.startsWith('blob:')) return src

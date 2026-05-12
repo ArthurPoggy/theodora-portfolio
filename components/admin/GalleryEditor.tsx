@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import type { GalleryImage } from '@/types/cms'
 import ImageUploader from './ImageUploader'
+import { normalizeMediaSrc } from '@/lib/imagekit'
 
 interface GalleryEditorProps {
   images: GalleryImage[]
@@ -50,7 +51,7 @@ export default function GalleryEditor({ images, onChange, targetDir }: GalleryEd
               className="relative aspect-square cursor-pointer"
               onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
             >
-              <Image src={img.src} alt={img.alt || ''} fill className="object-cover" sizes="200px" />
+              <Image src={normalizeMediaSrc(img.src)} alt={img.alt || ''} fill className="object-cover" sizes="200px" unoptimized />
               <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-colors flex items-center justify-center">
                 <span className="text-white text-xs opacity-0 hover:opacity-100 font-semibold">Editar</span>
               </div>

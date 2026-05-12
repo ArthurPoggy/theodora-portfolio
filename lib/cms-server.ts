@@ -25,7 +25,7 @@ function maybeTriggerMigration(section: string, content: string): void {
   const internalKey = process.env.INTERNAL_API_KEY || process.env.BLOB_READ_WRITE_TOKEN
   if (!internalKey) return
 
-  if (!content.includes('/api/media/')) return
+  if (!content.includes('/api/media/') && !content.includes('.private.blob.vercel-storage.com')) return
 
   const now = Date.now()
   const last = migrationLock[section] || 0
