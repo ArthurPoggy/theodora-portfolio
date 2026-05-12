@@ -84,7 +84,7 @@ export default function OverlayPropsPanel({ overlay, onChange }: OverlayPropsPan
             </div>
             <div className="mt-2">
               <ImageUploader
-                onUpload={(src) => onChange({ src, type: detectMediaType(src) })}
+                onUpload={(result) => onChange({ src: result.src, type: detectMediaType(result.src) })}
                 targetDir="overlays"
                 accept="image/*,video/mp4"
                 label="Trocar mídia"

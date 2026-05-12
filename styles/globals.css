@@ -21,6 +21,18 @@ html {
   background-color: var(--color-bg);
 }
 
+html:not(.admin-page-html)::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image: url('/bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
 body {
   background: transparent;
   color: var(--color-foreground);

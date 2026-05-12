@@ -1,5 +1,5 @@
-import Image from 'next/image'
 import Link from 'next/link'
+import OptimizedImage from './OptimizedImage'
 
 interface MarqueeItem {
   src: string
@@ -31,13 +31,11 @@ export default function MarqueeGallery({ items, direction = 'left' }: MarqueeGal
 function MarqueeCard({ item }: { item: MarqueeItem }) {
   return (
     <Link href={item.href} className="group relative flex-shrink-0 w-64 h-48 rounded-2xl overflow-hidden bg-bg-card block">
-      {/* Imagem */}
-      <Image
-        src={item.src}
-        alt={item.alt}
+      <OptimizedImage
+        source={{ src: item.src, alt: item.alt }}
+        purpose="marquee"
         fill
         className="object-cover transition-transform duration-500 group-hover:scale-110"
-        sizes="256px"
       />
       {/* Overlay no hover */}
       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2">

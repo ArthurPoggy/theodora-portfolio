@@ -1,9 +1,10 @@
 import { GetStaticProps } from 'next'
 import Layout from '@/components/Layout'
 import TypeWriter from '@/components/TypeWriter'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useState } from 'react'
-import Image from 'next/image'
+import OptimizedImage from '@/components/OptimizedImage'
+import Lightbox from '@/components/Lightbox'
 import type { GalleryImage, GalleriesData } from '@/types/cms'
 import { getCmsData } from '@/lib/cms-server'
 
@@ -21,7 +22,7 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
 
 export default function ConceptArtPage({ cenario, personagem }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('cenario')
-  const [lightbox, setLightbox] = useState<GalleryImage | null>(null)
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
 
   const images = activeTab === 'cenario' ? cenario : personagem
 
@@ -49,7 +50,7 @@ export default function ConceptArtPage({ cenario, personagem }: Props) {
               key={tab}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => { setActiveTab(tab); setLightboxIdx(null) }}
               className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 activeTab === tab
                   ? 'bg-accent text-bg'
@@ -62,7 +63,6 @@ export default function ConceptArtPage({ cenario, personagem }: Props) {
         </div>
       </section>
 
-      {/* Scroll horizontal estilo ArtStation */}
       <motion.div
         key={activeTab}
         initial={{ opacity: 0, x: 20 }}
@@ -77,15 +77,15 @@ export default function ConceptArtPage({ cenario, personagem }: Props) {
           <motion.div
             key={idx}
             whileHover={{ scale: 1.03 }}
-            onClick={() => setLightbox(img)}
+            onClick={() => setLightboxIdx(idx)}
             className="relative w-72 h-72 rounded-3xl overflow-hidden bg-bg-card cursor-pointer flex-shrink-0 group border border-bg-hover hover:border-accent/40 transition-colors"
           >
-            <Image
-              src={img.src}
-              alt={img.alt}
+            <OptimizedImage
+              source={img}
+              purpose="grid"
               fill
+              priority={idx < 4}
               className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="288px"
             />
             {img.title && (
               <div className="absolute bottom-0 left-0 right-0 px-3 py-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -96,40 +96,12 @@ export default function ConceptArtPage({ cenario, personagem }: Props) {
         ))}
       </motion.div>
 
-      {/* Lightbox */}
-      <AnimatePresence>
-        {lightbox && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="lightbox-overlay"
-            onClick={() => setLightbox(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.85 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.85 }}
-              className="relative max-w-4xl max-h-[90vh] w-full mx-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="relative w-full h-[75vh]">
-                <Image src={lightbox.src} alt={lightbox.alt} fill className="object-contain" sizes="100vw" />
-              </div>
-              <button
-                onClick={() => setLightbox(null)}
-                className="absolute top-4 right-4 text-foreground-muted hover:text-foreground bg-bg/80 rounded-full p-2 transition-colors"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
-              {lightbox.title && <p className="text-center text-foreground font-semibold text-base mt-3">{lightbox.title}</p>}
-              {lightbox.description && <p className="text-center text-foreground-muted text-sm mt-1 max-w-lg mx-auto px-4">{lightbox.description}</p>}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Lightbox
+        items={images}
+        index={lightboxIdx}
+        onClose={() => setLightboxIdx(null)}
+        onIndexChange={setLightboxIdx}
+      />
     </Layout>
   )
 }

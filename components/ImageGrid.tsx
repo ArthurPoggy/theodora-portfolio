@@ -1,7 +1,8 @@
-import Image from 'next/image'
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import type { GalleryImage } from '@/types/cms'
+import OptimizedMedia from './OptimizedMedia'
+import Lightbox from './Lightbox'
 
 export type { GalleryImage }
 
@@ -10,7 +11,7 @@ interface ImageGridProps {
 }
 
 export default function ImageGrid({ images }: ImageGridProps) {
-  const [lightbox, setLightbox] = useState<GalleryImage | null>(null)
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
 
   return (
     <>
@@ -23,23 +24,19 @@ export default function ImageGrid({ images }: ImageGridProps) {
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: (idx % 6) * 0.07 }}
             className="group relative overflow-hidden rounded-3xl bg-bg-card cursor-pointer break-inside-avoid"
-            onClick={() => setLightbox(img)}
+            onClick={() => setLightboxIdx(idx)}
             whileHover={{ scale: 1.03 }}
           >
             <div className="relative w-full aspect-square">
-              <Image
-                src={img.src}
-                alt={img.alt}
+              <OptimizedMedia
+                source={img}
+                purpose="grid"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             </div>
-            {/* Overlay de borda no hover */}
             <div className="absolute inset-0 border-2 border-transparent group-hover:border-accent/50 rounded-3xl transition-all duration-300 pointer-events-none" />
-            {/* Sombra colorida */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl shadow-[0_0_20px_rgba(139,232,248,0.25)] pointer-events-none" />
-            {/* Título no hover */}
             {img.title && (
               <div className="absolute bottom-0 left-0 right-0 px-3 py-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                 <p className="text-foreground text-xs font-semibold truncate">{img.title}</p>
@@ -49,54 +46,12 @@ export default function ImageGrid({ images }: ImageGridProps) {
         ))}
       </div>
 
-      {/* Lightbox */}
-      <AnimatePresence>
-        {lightbox && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="lightbox-overlay"
-            onClick={() => setLightbox(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.85 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.85 }}
-              className="relative max-w-4xl max-h-[90vh] w-full mx-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="relative w-full h-[75vh]">
-                <Image
-                  src={lightbox.src}
-                  alt={lightbox.alt}
-                  fill
-                  className="object-contain"
-                  sizes="100vw"
-                />
-              </div>
-              <button
-                onClick={() => setLightbox(null)}
-                className="absolute top-4 right-4 text-foreground-muted hover:text-foreground bg-bg/80 rounded-full p-2 transition-colors"
-                aria-label="Fechar"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
-              {lightbox.title && (
-                <p className="text-center text-foreground font-semibold text-base mt-3">{lightbox.title}</p>
-              )}
-              {lightbox.description && (
-                <p className="text-center text-foreground-muted text-sm mt-1 max-w-lg mx-auto px-4">{lightbox.description}</p>
-              )}
-              {!lightbox.title && lightbox.alt && (
-                <p className="text-center text-foreground-muted text-sm mt-3">{lightbox.alt}</p>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Lightbox
+        items={images}
+        index={lightboxIdx}
+        onClose={() => setLightboxIdx(null)}
+        onIndexChange={setLightboxIdx}
+      />
     </>
   )
 }

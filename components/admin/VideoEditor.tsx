@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { VideoItem } from '@/types/cms'
+import type { VideoItem, GalleryImage } from '@/types/cms'
 import ImageUploader from './ImageUploader'
 
 interface VideoEditorProps {
@@ -19,9 +19,9 @@ export default function VideoEditor({ videos, onChange }: VideoEditorProps) {
     setYoutubeId('')
   }
 
-  function handleMp4Upload(src: string) {
-    const videoTitle = title || src.split('/').pop() || 'Vídeo'
-    onChange([...videos, { type: 'mp4', title: videoTitle, src }])
+  function handleMp4Upload(result: GalleryImage) {
+    const videoTitle = title || result.src.split('/').pop() || 'Vídeo'
+    onChange([...videos, { type: 'mp4', title: videoTitle, src: result.src }])
     setTitle('')
   }
 

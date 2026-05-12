@@ -1,4 +1,4 @@
-import type { Track } from '@/types/cms'
+import type { Track, GalleryImage } from '@/types/cms'
 import ImageUploader from './ImageUploader'
 
 interface TracksEditorProps {
@@ -15,9 +15,9 @@ export default function TracksEditor({ tracks, onChange }: TracksEditorProps) {
     onChange(tracks.filter((_, i) => i !== idx))
   }
 
-  function handleUpload(src: string) {
-    const filename = src.split('/').pop()?.replace(/\.[^.]+$/, '') || 'Faixa'
-    onChange([...tracks, { title: filename, src }])
+  function handleUpload(result: GalleryImage) {
+    const filename = result.src.split('/').pop()?.replace(/\.[^.]+$/, '') || 'Faixa'
+    onChange([...tracks, { title: filename, src: result.src }])
   }
 
   return (

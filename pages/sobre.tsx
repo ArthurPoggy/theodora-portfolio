@@ -1,6 +1,6 @@
 import { GetStaticProps } from 'next'
 import Layout from '@/components/Layout'
-import Image from 'next/image'
+import OptimizedImage from '@/components/OptimizedImage'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Win98Window from '@/components/Win98Window'
@@ -35,7 +35,7 @@ export default function SobrePage({ about }: Props) {
                   className="flex-shrink-0 w-full lg:w-64"
                 >
                   <div className="relative w-full aspect-square overflow-hidden border-2 border-accent/30">
-                    <Image src={about.photoSrc} alt="by.TheodoraD" fill className="object-cover" />
+                    <OptimizedImage source={{ src: about.photoSrc, alt: 'by.TheodoraD' }} purpose="grid" fill className="object-cover" priority />
                   </div>
                 </motion.div>
 

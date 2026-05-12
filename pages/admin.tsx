@@ -162,56 +162,24 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
   }
 
   async function migrateMedia() {
-    if (!confirm('Esta operação move TODAS as mídias antigas (privadas) para CDN público, deixando o site muito mais rápido. Pode levar alguns minutos. Continuar?')) return
+    if (!confirm('Otimiza todas as mídias antigas (gera variantes responsivas e LQIP). Pode demorar alguns minutos. Continuar?')) return
     setMigrating(true)
-    setMigrationMsg('Migrando mídias para CDN público…')
-
-    const fullMapping: Record<string, string> = {}
-    let cursor: string | undefined
-    let totalMigrated = 0
-    const allErrors: string[] = []
-
+    setMigrationMsg('Otimizando mídias antigas…')
+    let totalProcessed = 0
     try {
-      // Loop batched para evitar timeout em arquivos grandes
       while (true) {
-        const r = await fetch('/api/admin/migrate-media', {
+        const r = await fetch('/api/admin/auto-migrate', {
           method: 'POST', credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cursor, limit: 5 }),
+          body: JSON.stringify({ batch: 3 }),
         })
         const result = await r.json()
-        if (!result.ok) throw new Error(result.error || 'Falha na migração')
-
-        Object.assign(fullMapping, result.mapping)
-        totalMigrated += result.migrated
-        if (result.errors?.length) allErrors.push(...result.errors)
-
-        setMigrationMsg(`Migrando lote… ${totalMigrated} arquivos processados`)
-        if (!result.hasMore || !result.cursor) break
-        cursor = result.cursor
+        if (!result.ok) throw new Error(result.error || 'Falha')
+        totalProcessed += result.processed
+        setMigrationMsg(`Processadas ${totalProcessed} mídias… ${result.remaining} restantes`)
+        if (result.processed === 0 || result.remaining === 0) break
       }
-
-      if (totalMigrated === 0) {
-        setMigrationMsg('Nenhuma mídia para migrar — já está tudo no CDN público.')
-        return
-      }
-
-      setMigrationMsg(`Reescrevendo caminhos em todas as seções…`)
-      const r2 = await fetch('/api/admin/rewrite-paths', {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mapping: fullMapping }),
-      })
-      const result2 = await r2.json()
-      if (!result2.ok) throw new Error(result2.error || 'Falha ao reescrever caminhos')
-
-      const totalReplacements = Object.values(result2.sections as Record<string, { replacements: number }>)
-        .reduce((sum, s) => sum + s.replacements, 0)
-
-      const errSuffix = allErrors.length ? ` (${allErrors.length} erros — veja o console)` : ''
-      if (allErrors.length) console.warn('Migration errors:', allErrors)
-
-      setMigrationMsg(`✓ ${totalMigrated} mídias migradas, ${totalReplacements} referências atualizadas. Recarregue o site em ~30s.${errSuffix}`)
+      setMigrationMsg(`✓ ${totalProcessed} mídias otimizadas. Recarregue o site em ~30s.`)
       load(section)
     } catch (e) {
       setMigrationMsg(`Erro: ${String(e)}`)
@@ -326,7 +294,7 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
               <div className="flex items-center gap-4 mb-6">
                 <img src={about.photoSrc} alt="Artista" className="w-20 h-20 rounded-xl object-cover border border-accent/30" />
                 <ImageUploader
-                  onUpload={(src) => setAbout({ ...about, photoSrc: src })}
+                  onUpload={(result) => setAbout({ ...about, photoSrc: result.src })}
                   targetDir="artista"
                   label="Trocar foto"
                 />
@@ -417,17 +385,17 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
           {/* ── BANNER DE MIGRAÇÃO ── */}
           {section === 'midias' && (
             <div className="mt-12 p-4 border border-yellow-500/30 bg-yellow-500/5 rounded-xl">
-              <h3 className="text-yellow-400 font-semibold text-sm mb-1">⚡ Acelerar site</h3>
+              <h3 className="text-yellow-400 font-semibold text-sm mb-1">⚡ Otimizar mídias antigas</h3>
               <p className="text-foreground-muted text-xs mb-3">
-                Migra mídias antigas (privadas) para CDN público direto, removendo o proxy lento.
-                Use uma vez se notar lentidão para carregar fotos.
+                A otimização roda automaticamente em background quando alguém visita o site,
+                mas você pode forçar tudo de uma vez aqui (gera variantes responsivas, AVIF, LQIP).
               </p>
               <button
                 onClick={migrateMedia}
                 disabled={migrating}
                 className="px-4 py-2 bg-yellow-500/20 border border-yellow-500/40 text-yellow-400 text-xs font-semibold rounded-lg hover:bg-yellow-500/30 disabled:opacity-50 transition-colors"
               >
-                {migrating ? 'Migrando…' : 'Migrar mídias para CDN'}
+                {migrating ? 'Otimizando…' : 'Otimizar todas agora'}
               </button>
               {migrationMsg && <p className="text-foreground-muted text-xs mt-2">{migrationMsg}</p>}
             </div>

@@ -8,6 +8,7 @@ import Win98Scrollbar from '@/components/Win98Scrollbar'
 import CustomCursor from '@/components/CustomCursor'
 import { OverlaysProvider } from '@/components/OverlaysContext'
 import type { Track } from '@/types/cms'
+import { fetchWithCache } from '@/lib/session-cache'
 
 export function trackPageVisit(page: string) {
   if (typeof window === 'undefined') return
@@ -21,10 +22,9 @@ export default function App({ Component, pageProps }: AppProps) {
   const [tracks, setTracks] = useState<Track[]>([])
 
   useEffect(() => {
-    fetch('/api/public/tracks')
-      .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setTracks(data) })
-      .catch(() => {})
+    fetchWithCache<Track[]>('cms:tracks', '/api/public/tracks').then((data) => {
+      if (Array.isArray(data)) setTracks(data)
+    })
   }, [])
 
   useEffect(() => {
@@ -36,11 +36,16 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const isAdmin = router.pathname === '/admin'
 
+  // bg.png agora vem do CSS (::before em html) — evita recriar div em cada navegação
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    document.documentElement.classList.toggle('admin-page-html', isAdmin)
+  }, [isAdmin])
+
   return (
     <OverlaysProvider>
-      {!isAdmin && <div style={{ position: 'fixed', inset: 0, zIndex: 0, backgroundImage: "url('/bg.png')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', pointerEvents: 'none' }} />}
       {!isAdmin && <CustomCursor />}
-      {!isAdmin && <Sparkles count={18} />}
+      {!isAdmin && <Sparkles count={8} />}
       {!isAdmin && <Win98Scrollbar />}
       <Component {...pageProps} />
       {!isAdmin && <MusicPlayer tracks={tracks} />}

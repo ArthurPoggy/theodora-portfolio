@@ -2,35 +2,68 @@ import { useEffect, useRef, useState } from 'react'
 
 export default function CustomCursor() {
   const ref = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
+  const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
-    const move = (e: MouseEvent) => {
-      if (ref.current) {
-        ref.current.style.left = e.clientX + 'px'
-        ref.current.style.top = e.clientY + 'px'
+    // Desabilita em dispositivos sem hover (touch / mobile)
+    if (typeof window === 'undefined') return
+    const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    if (!supportsHover) return
+    setEnabled(true)
+
+    const el = ref.current
+    if (!el) return
+
+    let pendingX = 0
+    let pendingY = 0
+    let frame = 0
+    let visible = false
+
+    function apply() {
+      frame = 0
+      if (el) {
+        el.style.transform = `translate3d(${pendingX}px, ${pendingY}px, 0)`
+        if (!visible) {
+          el.style.opacity = '1'
+          visible = true
+        }
       }
-      if (!visible) setVisible(true)
     }
-    const hide = () => setVisible(false)
-    window.addEventListener('mousemove', move)
-    window.addEventListener('mouseleave', hide)
+
+    function onMove(e: MouseEvent) {
+      pendingX = e.clientX
+      pendingY = e.clientY
+      if (!frame) frame = requestAnimationFrame(apply)
+    }
+    function onLeave() {
+      if (el) el.style.opacity = '0'
+      visible = false
+    }
+
+    window.addEventListener('mousemove', onMove, { passive: true })
+    window.addEventListener('mouseleave', onLeave)
     return () => {
-      window.removeEventListener('mousemove', move)
-      window.removeEventListener('mouseleave', hide)
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseleave', onLeave)
+      cancelAnimationFrame(frame)
     }
-  }, [visible])
+  }, [])
+
+  if (!enabled) return null
 
   return (
     <div
       ref={ref}
       style={{
         position: 'fixed',
+        top: 0,
+        left: 0,
         pointerEvents: 'none',
         zIndex: 99999,
         width: 28,
-        opacity: visible ? 1 : 0,
-        transform: 'translate(0, 0)',
+        opacity: 0,
+        transform: 'translate3d(0, 0, 0)',
+        willChange: 'transform',
         imageRendering: 'pixelated',
       }}
     >

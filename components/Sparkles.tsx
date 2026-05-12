@@ -38,10 +38,10 @@ const StarIcon = ({ size }: { size: number }) => (
   </svg>
 )
 
-export default function Sparkles({ count = 20 }: SparklesProps) {
+export default function Sparkles({ count = 8 }: SparklesProps) {
   const [mounted, setMounted] = useState(false)
+  const [hidden, setHidden] = useState(false)
 
-  // Posições geradas apenas no client (SSR-safe)
   const sparkles = useMemo<SparkleConfig[]>(() => {
     if (typeof window === 'undefined') return []
     return generateSparkles(count)
@@ -49,9 +49,12 @@ export default function Sparkles({ count = 20 }: SparklesProps) {
 
   useEffect(() => {
     setMounted(true)
+    const onVis = () => setHidden(document.hidden)
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
   }, [])
 
-  if (!mounted) return null
+  if (!mounted || hidden) return null
 
   return (
     <>
@@ -62,12 +65,14 @@ export default function Sparkles({ count = 20 }: SparklesProps) {
           70%  { opacity: 0.8; transform: scale(0.9) rotate(-10deg); }
           100% { opacity: 0; transform: scale(0) rotate(0deg); }
         }
+        .sparkle-pulse { will-change: transform, opacity; }
       `}</style>
 
       {sparkles.map((s) => (
         <span
           key={s.id}
           aria-hidden="true"
+          className="sparkle-pulse"
           style={{
             position: 'fixed',
             top: s.top,

@@ -430,7 +430,7 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
           <div className="bg-bg-card border border-bg-hover rounded-xl p-4">
             <p className="text-foreground-muted text-xs uppercase tracking-wider mb-3">Adicionar imagem / vídeo</p>
             <ImageUploader
-              onUpload={(src) => addOverlay(src)}
+              onUpload={(result) => addOverlay(result.src)}
               targetDir="overlays"
               accept="image/*,video/mp4"
               label="Upload de imagem ou vídeo"

@@ -35,8 +35,9 @@ export default function GalleryEditor({ images, onChange, targetDir }: GalleryEd
     onChange(next)
   }
 
-  function handleUpload(publicPath: string) {
-    onChange([...images, { src: publicPath, alt: '' }])
+  function handleUpload(result: GalleryImage) {
+    // Mantém alt vazio (usuário edita depois); preserva todos os campos otimizados
+    onChange([...images, { ...result, alt: result.alt || '' }])
     setExpandedIdx(images.length)
   }
 

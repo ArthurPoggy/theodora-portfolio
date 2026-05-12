@@ -38,15 +38,27 @@ export default function Win98Scrollbar() {
 
   useEffect(() => {
     setMounted(true)
-    const onScroll = () => {
+    let raf = 0
+    let pending = false
+    const compute = () => {
+      pending = false
       const maxScroll = document.body.scrollHeight - window.innerHeight
       if (maxScroll <= 0) { setThumbTop(0); return }
       const pct = window.scrollY / maxScroll
       const trackHeight = window.innerHeight - 36 - 40
       setThumbTop(pct * trackHeight)
     }
+    const onScroll = () => {
+      if (pending) return
+      pending = true
+      raf = requestAnimationFrame(compute)
+    }
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    compute()
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      cancelAnimationFrame(raf)
+    }
   }, [])
 
   if (!mounted) return null

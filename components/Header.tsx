@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { SocialLinks } from '@/types/cms'
+import { fetchWithCache } from '@/lib/session-cache'
 
 const DEFAULT_SOCIAL: SocialLinks = {
   linkedin: 'https://www.linkedin.com/in/theodora-dedeski/',
@@ -46,10 +47,9 @@ export default function Header() {
   const [social, setSocial] = useState<SocialLinks>(DEFAULT_SOCIAL)
 
   useEffect(() => {
-    fetch('/api/public/social')
-      .then((r) => r.json())
-      .then((data) => { if (data?.linkedin) setSocial(data) })
-      .catch(() => {})
+    fetchWithCache<SocialLinks>('cms:social', '/api/public/social').then((data) => {
+      if (data?.linkedin) setSocial(data)
+    })
   }, [])
 
   return (
