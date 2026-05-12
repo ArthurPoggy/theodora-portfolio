@@ -162,24 +162,16 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
   }
 
   async function migrateMedia() {
-    if (!confirm('Otimiza todas as mídias antigas (gera variantes responsivas e LQIP). Pode demorar alguns minutos. Continuar?')) return
+    if (!confirm('Reescreve paths legados (/api/media/...) para URLs públicas diretas do Vercel Blob. É rápido — pode rodar à vontade.')) return
     setMigrating(true)
-    setMigrationMsg('Otimizando mídias antigas…')
-    let totalProcessed = 0
+    setMigrationMsg('Reescrevendo paths…')
     try {
-      while (true) {
-        const r = await fetch('/api/admin/auto-migrate', {
-          method: 'POST', credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ batch: 3 }),
-        })
-        const result = await r.json()
-        if (!result.ok) throw new Error(result.error || 'Falha')
-        totalProcessed += result.processed
-        setMigrationMsg(`Processadas ${totalProcessed} mídias… ${result.remaining} restantes`)
-        if (result.processed === 0 || result.remaining === 0) break
-      }
-      setMigrationMsg(`✓ ${totalProcessed} mídias otimizadas. Recarregue o site em ~30s.`)
+      const r = await fetch('/api/admin/migrate-urls', {
+        method: 'POST', credentials: 'include',
+      })
+      const result = await r.json()
+      if (!result.ok) throw new Error(result.error || 'Falha')
+      setMigrationMsg(`✓ ${result.totalReplacements} referências atualizadas. Recarregue o site em ~30s.`)
       load(section)
     } catch (e) {
       setMigrationMsg(`Erro: ${String(e)}`)
@@ -385,17 +377,17 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
           {/* ── BANNER DE MIGRAÇÃO ── */}
           {section === 'midias' && (
             <div className="mt-12 p-4 border border-yellow-500/30 bg-yellow-500/5 rounded-xl">
-              <h3 className="text-yellow-400 font-semibold text-sm mb-1">⚡ Otimizar mídias antigas</h3>
+              <h3 className="text-yellow-400 font-semibold text-sm mb-1">⚡ Reescrever paths antigos</h3>
               <p className="text-foreground-muted text-xs mb-3">
-                A otimização roda automaticamente em background quando alguém visita o site,
-                mas você pode forçar tudo de uma vez aqui (gera variantes responsivas, AVIF, LQIP).
+                Reescreve referências /api/media/... antigas para URLs públicas diretas do CDN.
+                Roda automaticamente em background; aqui é só pra forçar agora.
               </p>
               <button
                 onClick={migrateMedia}
                 disabled={migrating}
                 className="px-4 py-2 bg-yellow-500/20 border border-yellow-500/40 text-yellow-400 text-xs font-semibold rounded-lg hover:bg-yellow-500/30 disabled:opacity-50 transition-colors"
               >
-                {migrating ? 'Otimizando…' : 'Otimizar todas agora'}
+                {migrating ? 'Reescrevendo…' : 'Reescrever paths agora'}
               </button>
               {migrationMsg && <p className="text-foreground-muted text-xs mt-2">{migrationMsg}</p>}
             </div>

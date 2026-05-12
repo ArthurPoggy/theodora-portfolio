@@ -3,8 +3,10 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
-      // Vercel Blob CDN (uploads públicos pós-migração)
+      // Vercel Blob CDN (uploads públicos)
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
+      // ImageKit (camada de transformação)
+      { protocol: 'https', hostname: 'ik.imagekit.io' },
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',

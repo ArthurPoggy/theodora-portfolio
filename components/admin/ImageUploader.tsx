@@ -63,24 +63,9 @@ export default function ImageUploader({ onUpload, targetDir, accept = 'image/*',
         return
       }
 
-      // Processa variantes no servidor (sem bloquear UI se demorar)
-      setProgress({ stage: 'uploading', percentage: 100, message: 'Gerando variantes responsivas…' })
-      try {
-        const procRes = await fetch('/api/admin/process-media', {
-          method: 'POST', credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: blob.url, kind, alt: rawFile.name }),
-        })
-        const procJson = await procRes.json()
-        if (procJson?.ok && procJson?.descriptor) {
-          onUpload(procJson.descriptor as GalleryImage)
-        } else {
-          // Falha no processamento — retorna descriptor minimal
-          onUpload({ src: blob.url, alt: rawFile.name, kind })
-        }
-      } catch {
-        onUpload({ src: blob.url, alt: rawFile.name, kind })
-      }
+      // Variantes responsivas agora são geradas on-the-fly pelo ImageKit no
+      // momento da renderização — não precisa de processamento server-side.
+      onUpload({ src: blob.url, alt: rawFile.name, kind })
     } catch (e) {
       setError(String(e))
     } finally {

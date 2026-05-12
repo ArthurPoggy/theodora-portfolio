@@ -40,11 +40,13 @@ body {
   font-size: 1.0625rem;
   min-height: 100vh;
   overflow-x: hidden;
-  cursor: none;
 }
 
-*, a, button, [role="button"], label, select, input[type="submit"], input[type="button"], input[type="reset"] {
-  cursor: none;
+@media (hover: hover) and (pointer: fine) {
+  body,
+  *, a, button, [role="button"], label, select, input[type="submit"], input[type="button"], input[type="reset"] {
+    cursor: none;
+  }
 }
 
 /* Esconde scrollbar nativa — a Win98Scrollbar lateral é a customizada */

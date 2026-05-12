@@ -1,16 +1,22 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
+/**
+ * Cursor customizado pixel-art. Renderiza o div SEMPRE (mesmo no SSR) —
+ * o useEffect anexa os listeners após o mount. Em devices touch-only
+ * o useEffect bailout e o div fica invisível (opacity 0).
+ *
+ * Bug corrigido: a versão anterior usava `if (!mounted) return null`
+ * antes do return do JSX, e setMounted(true) era chamado DENTRO do
+ * useEffect — o que significava que `ref.current` era null quando o
+ * effect tentava instalar listeners (re-render ainda não tinha rodado).
+ */
 export default function CustomCursor() {
   const ref = useRef<HTMLDivElement>(null)
-  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    setMounted(true)
-
-    // Detecta touch-only (sem mouse/trackpad): aí esconde e nem instala listener
-    const touchOnly = window.matchMedia('(hover: none)').matches
-    if (touchOnly) return
+    // Touch-only? Não instala nada; div fica invisível
+    if (window.matchMedia('(hover: none)').matches) return
 
     const el = ref.current
     if (!el) return
@@ -50,11 +56,10 @@ export default function CustomCursor() {
     }
   }, [])
 
-  if (!mounted) return null
-
   return (
     <div
       ref={ref}
+      aria-hidden
       style={{
         position: 'fixed',
         top: 0,
