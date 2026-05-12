@@ -105,6 +105,10 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
 
+  // Migration states
+  const [migrating, setMigrating] = useState(false)
+  const [migrationMsg, setMigrationMsg] = useState('')
+
   const sectionDataMap: Record<Section, unknown> = {
     galerias: galleries, animacoes: animations, sobre: about,
     depoimentos: testimonials, playlist: tracks, home, sociais: social,
@@ -155,6 +159,66 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
   async function logout() {
     await fetch('/api/admin/logout', { method: 'POST', credentials: 'include' })
     setAuthed(false)
+  }
+
+  async function migrateMedia() {
+    if (!confirm('Esta operação move TODAS as mídias antigas (privadas) para CDN público, deixando o site muito mais rápido. Pode levar alguns minutos. Continuar?')) return
+    setMigrating(true)
+    setMigrationMsg('Migrando mídias para CDN público…')
+
+    const fullMapping: Record<string, string> = {}
+    let cursor: string | undefined
+    let totalMigrated = 0
+    const allErrors: string[] = []
+
+    try {
+      // Loop batched para evitar timeout em arquivos grandes
+      while (true) {
+        const r = await fetch('/api/admin/migrate-media', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cursor, limit: 5 }),
+        })
+        const result = await r.json()
+        if (!result.ok) throw new Error(result.error || 'Falha na migração')
+
+        Object.assign(fullMapping, result.mapping)
+        totalMigrated += result.migrated
+        if (result.errors?.length) allErrors.push(...result.errors)
+
+        setMigrationMsg(`Migrando lote… ${totalMigrated} arquivos processados`)
+        if (!result.hasMore || !result.cursor) break
+        cursor = result.cursor
+      }
+
+      if (totalMigrated === 0) {
+        setMigrationMsg('Nenhuma mídia para migrar — já está tudo no CDN público.')
+        return
+      }
+
+      setMigrationMsg(`Reescrevendo caminhos em todas as seções…`)
+      const r2 = await fetch('/api/admin/rewrite-paths', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mapping: fullMapping }),
+      })
+      const result2 = await r2.json()
+      if (!result2.ok) throw new Error(result2.error || 'Falha ao reescrever caminhos')
+
+      const totalReplacements = Object.values(result2.sections as Record<string, { replacements: number }>)
+        .reduce((sum, s) => sum + s.replacements, 0)
+
+      const errSuffix = allErrors.length ? ` (${allErrors.length} erros — veja o console)` : ''
+      if (allErrors.length) console.warn('Migration errors:', allErrors)
+
+      setMigrationMsg(`✓ ${totalMigrated} mídias migradas, ${totalReplacements} referências atualizadas. Recarregue o site em ~30s.${errSuffix}`)
+      load(section)
+    } catch (e) {
+      setMigrationMsg(`Erro: ${String(e)}`)
+    } finally {
+      setMigrating(false)
+      setTimeout(() => setMigrationMsg(''), 20000)
+    }
   }
 
   if (!authed) return <LoginForm onLogin={() => { setAuthed(true) }} />
@@ -347,6 +411,25 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
               </p>
               <OverlaysEditor data={overlays} onChange={setOverlays} />
               <SaveButton onClick={save} saving={saving} message={saveMsg} />
+            </div>
+          )}
+
+          {/* ── BANNER DE MIGRAÇÃO ── */}
+          {section === 'midias' && (
+            <div className="mt-12 p-4 border border-yellow-500/30 bg-yellow-500/5 rounded-xl">
+              <h3 className="text-yellow-400 font-semibold text-sm mb-1">⚡ Acelerar site</h3>
+              <p className="text-foreground-muted text-xs mb-3">
+                Migra mídias antigas (privadas) para CDN público direto, removendo o proxy lento.
+                Use uma vez se notar lentidão para carregar fotos.
+              </p>
+              <button
+                onClick={migrateMedia}
+                disabled={migrating}
+                className="px-4 py-2 bg-yellow-500/20 border border-yellow-500/40 text-yellow-400 text-xs font-semibold rounded-lg hover:bg-yellow-500/30 disabled:opacity-50 transition-colors"
+              >
+                {migrating ? 'Migrando…' : 'Migrar mídias para CDN'}
+              </button>
+              {migrationMsg && <p className="text-foreground-muted text-xs mt-2">{migrationMsg}</p>}
             </div>
           )}
 

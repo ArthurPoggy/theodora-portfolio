@@ -1,12 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { list } from '@vercel/blob'
+import { Readable } from 'stream'
 
-// Cache em memória: pathname → blob URL (só para blobs privados antigos)
+export const config = {
+  api: { responseLimit: false },
+}
+
+// Cache em memória: pathname → blob URL (sobrevive entre invocações da mesma instância)
 const urlCache: Record<string, string> = {}
 
-// Serve arquivos de mídia privados legados armazenados no Vercel Blob.
-// Novos uploads usam access:'public' e CDN direto — este proxy só existe
-// para compatibilidade com arquivos antigos que ainda usam /api/media/...
+// Proxy legado para arquivos privados antigos. Novos uploads usam
+// access:'public' e CDN direto. Após migração via /api/admin/migrate-media,
+// este proxy só serve fallback de paths não migrados.
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405).end()
 
@@ -31,14 +36,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const upstream = await fetch(blobUrl, {
       headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` },
     })
-    if (!upstream.ok) return res.status(upstream.status).end()
+    if (!upstream.ok || !upstream.body) return res.status(upstream.status).end()
 
     const contentType = upstream.headers.get('content-type') || 'application/octet-stream'
+    const contentLength = upstream.headers.get('content-length')
     res.setHeader('Content-Type', contentType)
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+    if (contentLength) res.setHeader('Content-Length', contentLength)
 
-    const arrayBuffer = await upstream.arrayBuffer()
-    res.send(Buffer.from(arrayBuffer))
+    // Streaming em vez de bufferizar em memória (importante para arquivos grandes)
+    Readable.fromWeb(upstream.body as unknown as import('stream/web').ReadableStream).pipe(res)
   } catch {
     res.status(500).end()
   }

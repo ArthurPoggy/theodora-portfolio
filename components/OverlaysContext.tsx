@@ -20,8 +20,10 @@ export function OverlaysProvider({ children }: { children: ReactNode }) {
     fetchOverlays()
   }, [])
 
-  // Repoll a cada 15s quando a página está visível
+  // Repoll só quando está em iframe (admin preview). Em páginas públicas
+  // o ISR já refresca a cada 30s — evita request a cada 15s pra todo visitante.
   useEffect(() => {
+    if (typeof window === 'undefined' || window.parent === window) return
     const interval = setInterval(() => {
       if (!document.hidden) fetchOverlays()
     }, 15000)
