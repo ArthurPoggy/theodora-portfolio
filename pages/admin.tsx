@@ -108,6 +108,8 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
   // Migration states
   const [migrating, setMigrating] = useState(false)
   const [migrationMsg, setMigrationMsg] = useState('')
+  const [migratingIk, setMigratingIk] = useState(false)
+  const [migrationIkMsg, setMigrationIkMsg] = useState('')
 
   const sectionDataMap: Record<Section, unknown> = {
     galerias: galleries, animacoes: animations, sobre: about,
@@ -178,6 +180,27 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
     } finally {
       setMigrating(false)
       setTimeout(() => setMigrationMsg(''), 20000)
+    }
+  }
+
+  async function migrateToImagekit() {
+    if (!confirm('Copia TODAS as mídias do Vercel Blob para o ImageKit e reescreve o CMS. Pode levar alguns minutos. Continuar?')) return
+    setMigratingIk(true)
+    setMigrationIkMsg('Migrando mídias para o ImageKit…')
+    try {
+      const r = await fetch('/api/admin/migrate-to-imagekit', {
+        method: 'POST', credentials: 'include',
+      })
+      const result = await r.json()
+      if (!result.ok) throw new Error(result.error || 'Falha')
+      const failed = (result.uploads || []).filter((u: { status: string }) => u.status === 'error').length
+      setMigrationIkMsg(`✓ ${result.blobsFound} arquivos migrados${failed ? ` (${failed} falharam)` : ''}. ${result.totalReplacements} URLs reescritas. Recarregue o site em ~30s.`)
+      load(section)
+    } catch (e) {
+      setMigrationIkMsg(`Erro: ${String(e)}`)
+    } finally {
+      setMigratingIk(false)
+      setTimeout(() => setMigrationIkMsg(''), 60000)
     }
   }
 
@@ -376,21 +399,39 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
 
           {/* ── BANNER DE MIGRAÇÃO ── */}
           {section === 'midias' && (
-            <div className="mt-12 p-4 border border-yellow-500/30 bg-yellow-500/5 rounded-xl">
-              <h3 className="text-yellow-400 font-semibold text-sm mb-1">⚡ Reescrever paths antigos</h3>
-              <p className="text-foreground-muted text-xs mb-3">
-                Reescreve referências /api/media/... antigas para URLs públicas diretas do CDN.
-                Roda automaticamente em background; aqui é só pra forçar agora.
-              </p>
-              <button
-                onClick={migrateMedia}
-                disabled={migrating}
-                className="px-4 py-2 bg-yellow-500/20 border border-yellow-500/40 text-yellow-400 text-xs font-semibold rounded-lg hover:bg-yellow-500/30 disabled:opacity-50 transition-colors"
-              >
-                {migrating ? 'Reescrevendo…' : 'Reescrever paths agora'}
-              </button>
-              {migrationMsg && <p className="text-foreground-muted text-xs mt-2">{migrationMsg}</p>}
-            </div>
+            <>
+              <div className="mt-12 p-4 border border-yellow-500/30 bg-yellow-500/5 rounded-xl">
+                <h3 className="text-yellow-400 font-semibold text-sm mb-1">⚡ Reescrever paths antigos</h3>
+                <p className="text-foreground-muted text-xs mb-3">
+                  Reescreve referências /api/media/... antigas para URLs públicas diretas do CDN.
+                  Roda automaticamente em background; aqui é só pra forçar agora.
+                </p>
+                <button
+                  onClick={migrateMedia}
+                  disabled={migrating}
+                  className="px-4 py-2 bg-yellow-500/20 border border-yellow-500/40 text-yellow-400 text-xs font-semibold rounded-lg hover:bg-yellow-500/30 disabled:opacity-50 transition-colors"
+                >
+                  {migrating ? 'Reescrevendo…' : 'Reescrever paths agora'}
+                </button>
+                {migrationMsg && <p className="text-foreground-muted text-xs mt-2">{migrationMsg}</p>}
+              </div>
+
+              <div className="mt-4 p-4 border border-accent/30 bg-accent/5 rounded-xl">
+                <h3 className="text-accent font-semibold text-sm mb-1">🚀 Migrar para ImageKit</h3>
+                <p className="text-foreground-muted text-xs mb-3">
+                  Copia todas as mídias do Vercel Blob para o ImageKit Media Library e reescreve o CMS.
+                  Roda uma vez só, depois pode desligar o Vercel Blob.
+                </p>
+                <button
+                  onClick={migrateToImagekit}
+                  disabled={migratingIk}
+                  className="px-4 py-2 bg-accent/20 border border-accent/40 text-accent text-xs font-semibold rounded-lg hover:bg-accent/30 disabled:opacity-50 transition-colors"
+                >
+                  {migratingIk ? 'Migrando…' : 'Migrar tudo para ImageKit'}
+                </button>
+                {migrationIkMsg && <p className="text-foreground-muted text-xs mt-2 whitespace-pre-wrap">{migrationIkMsg}</p>}
+              </div>
+            </>
           )}
 
           {/* Loading state */}

@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react'
-import { upload } from '@vercel/blob/client'
 import { preprocessMedia, type ProcessProgress } from '@/lib/media-pipeline'
 import type { GalleryImage } from '@/types/cms'
 
@@ -26,6 +25,56 @@ function isAudio(file: File): boolean {
   return file.type.startsWith('audio/')
 }
 
+interface UploadAuth {
+  token: string
+  expire: number
+  signature: string
+  publicKey: string
+  urlEndpoint: string
+}
+
+/** Faz POST multipart pro ImageKit com progresso. Usa XHR (fetch não expõe upload progress). */
+function uploadToImageKit(
+  file: File,
+  folder: string,
+  fileName: string,
+  auth: UploadAuth,
+  onProgress: (pct: number) => void,
+): Promise<{ url: string }> {
+  return new Promise((resolve, reject) => {
+    const form = new FormData()
+    form.append('file', file)
+    form.append('fileName', fileName)
+    form.append('folder', folder)
+    form.append('useUniqueFileName', 'false')
+    form.append('overwriteFile', 'true')
+    form.append('publicKey', auth.publicKey)
+    form.append('signature', auth.signature)
+    form.append('expire', String(auth.expire))
+    form.append('token', auth.token)
+
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', 'https://upload.imagekit.io/api/v1/files/upload')
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100))
+    }
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const json = JSON.parse(xhr.responseText) as { url: string }
+          resolve(json)
+        } catch {
+          reject(new Error(`Resposta inválida do ImageKit: ${xhr.responseText.slice(0, 200)}`))
+        }
+      } else {
+        reject(new Error(`Upload falhou (${xhr.status}): ${xhr.responseText.slice(0, 300)}`))
+      }
+    }
+    xhr.onerror = () => reject(new Error('Erro de rede durante upload'))
+    xhr.send(form)
+  })
+}
+
 export default function ImageUploader({ onUpload, targetDir, accept = 'image/*', label = 'Adicionar imagem' }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -49,23 +98,30 @@ export default function ImageUploader({ onUpload, targetDir, accept = 'image/*',
         kind = result.kind
       }
 
-      setProgress({ stage: 'uploading', percentage: 0, message: 'Enviando…' })
+      setProgress({ stage: 'uploading', percentage: 0, message: 'Pegando token…' })
+      const tokenRes = await fetch('/api/admin/upload-token', { method: 'POST', credentials: 'include' })
+      if (!tokenRes.ok) throw new Error(`Falha ao obter token (${tokenRes.status})`)
+      const auth = await tokenRes.json() as UploadAuth
+
       const safeFilename = sanitizeFilename(fileToUpload.name)
-      const blob = await upload(`media/${targetDir}/${safeFilename}`, fileToUpload, {
-        access: 'public',
-        handleUploadUrl: '/api/admin/upload-token',
-        onUploadProgress: ({ percentage }) => setUploadPct(Math.round(percentage)),
-      })
+      setProgress({ stage: 'uploading', percentage: 0, message: 'Enviando…' })
+      const { url } = await uploadToImageKit(
+        fileToUpload,
+        `media/${targetDir}`,
+        safeFilename,
+        auth,
+        (pct) => setUploadPct(pct),
+      )
 
       // Áudio: descriptor mínimo
       if (isAudio(rawFile)) {
-        onUpload({ src: blob.url, alt: rawFile.name })
+        onUpload({ src: url, alt: rawFile.name })
         return
       }
 
-      // Variantes responsivas agora são geradas on-the-fly pelo ImageKit no
-      // momento da renderização — não precisa de processamento server-side.
-      onUpload({ src: blob.url, alt: rawFile.name, kind })
+      // Variantes responsivas são geradas on-the-fly pelo ImageKit no momento
+      // da renderização — não precisa de processamento server-side.
+      onUpload({ src: url, alt: rawFile.name, kind })
     } catch (e) {
       setError(String(e))
     } finally {

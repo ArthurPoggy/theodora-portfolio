@@ -1,4 +1,5 @@
 import { getBlobSection } from './blob'
+import { getImageKitJson, isImageKitStorageEnabled } from './imagekit-storage'
 import path from 'path'
 import fs from 'fs'
 
@@ -6,15 +7,30 @@ import fs from 'fs'
 const migrationLock: Record<string, number> = {}
 const MIGRATION_COOLDOWN_MS = 5_000
 
-/** Lê uma seção do CMS: tenta Blob primeiro, cai no filesystem como fallback.
- * Em background, dispara migrate-urls se detectar paths legados — operação
- * leve (só resolve URLs do Blob, sem download/upload de bytes). */
+/**
+ * Lê uma seção do CMS com triplo fallback durante a coexistência ImageKit↔Blob:
+ *   1. ImageKit Media Library (novo storage)
+ *   2. Vercel Blob (storage legado, mantido até migração completa)
+ *   3. Filesystem (`data/<section>.json`) — fallback final, antes da primeira gravação
+ *
+ * Quando o conteúdo vem do Blob com paths legados (/api/media/ ou URLs privadas),
+ * dispara migrate-urls fire-and-forget.
+ */
 export async function getCmsData<T>(section: string): Promise<T> {
+  // 1. ImageKit primeiro (storage novo)
+  if (isImageKitStorageEnabled()) {
+    const ikContent = await getImageKitJson(section)
+    if (ikContent) return JSON.parse(ikContent) as T
+  }
+
+  // 2. Vercel Blob (legado, fallback durante coexistência)
   const blobContent = await getBlobSection(section)
   if (blobContent) {
     maybeTriggerMigration(section, blobContent)
     return JSON.parse(blobContent) as T
   }
+
+  // 3. Filesystem (estado inicial)
   const filePath = path.join(process.cwd(), 'data', `${section}.json`)
   const content = fs.readFileSync(filePath, 'utf-8')
   return JSON.parse(content) as T

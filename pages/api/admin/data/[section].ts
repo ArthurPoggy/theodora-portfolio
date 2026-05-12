@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { isAuthenticated } from '@/lib/auth'
 import { getBlobSection, putBlobSection } from '@/lib/blob'
+import { getImageKitJson, putImageKitJson, isImageKitStorageEnabled } from '@/lib/imagekit-storage'
 import path from 'path'
 import fs from 'fs'
 
@@ -18,11 +19,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === 'GET') {
-    // Tenta Blob primeiro; fallback para filesystem local (antes da primeira gravação)
-    const blobContent = await getBlobSection(section)
-    if (blobContent) {
-      return res.status(200).json({ ok: true, data: JSON.parse(blobContent) })
+    // 1. ImageKit primeiro (storage novo)
+    if (isImageKitStorageEnabled()) {
+      const ikContent = await getImageKitJson(section)
+      if (ikContent) return res.status(200).json({ ok: true, data: JSON.parse(ikContent) })
     }
+    // 2. Vercel Blob (legado)
+    const blobContent = await getBlobSection(section)
+    if (blobContent) return res.status(200).json({ ok: true, data: JSON.parse(blobContent) })
+    // 3. Filesystem (estado inicial)
     try {
       const localPath = path.join(process.cwd(), 'data', `${section}.json`)
       const content = fs.readFileSync(localPath, 'utf-8')
@@ -37,12 +42,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (data === undefined || data === null) {
       return res.status(400).json({ ok: false, error: 'Dados ausentes' })
     }
-    try {
-      await putBlobSection(section, JSON.stringify(data, null, 2))
-      return res.status(200).json({ ok: true })
-    } catch (err) {
-      return res.status(500).json({ ok: false, error: String(err) })
+    const json = JSON.stringify(data, null, 2)
+
+    // Dual-write durante coexistência: ImageKit é a fonte primária; Blob fica
+    // como backup até a migração ser confirmada. Se um dos dois falhar, ainda
+    // ok desde que o outro grave.
+    const results = await Promise.allSettled([
+      isImageKitStorageEnabled() ? putImageKitJson(section, json) : Promise.resolve(),
+      putBlobSection(section, json).catch((e) => { console.warn('[cms PUT] blob fallback falhou:', e); throw e }),
+    ])
+
+    const ikOk = results[0].status === 'fulfilled'
+    const blobOk = results[1].status === 'fulfilled'
+
+    if (!ikOk && !blobOk) {
+      const errs = results.map((r) => r.status === 'rejected' ? String(r.reason) : '').filter(Boolean).join(' | ')
+      return res.status(500).json({ ok: false, error: errs || 'Falha na gravação' })
     }
+    return res.status(200).json({ ok: true, primary: ikOk ? 'imagekit' : 'blob' })
   }
 
   return res.status(405).end()
