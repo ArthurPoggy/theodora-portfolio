@@ -31,14 +31,12 @@ export default function ImageUploader({ onUpload, targetDir, accept = 'image/*',
     try {
       const safeFilename = sanitizeFilename(file.name)
       const blob = await upload(`media/${targetDir}/${safeFilename}`, file, {
-        access: 'private',
+        access: 'public',
         handleUploadUrl: '/api/admin/upload-token',
         onUploadProgress: ({ percentage }) => setProgress(Math.round(percentage)),
       })
-      // Converte pathname do blob para URL da rota proxy
-      // blob.pathname = 'media/overlays/foo.gif' → '/api/media/overlays/foo.gif'
-      const proxyPath = '/api/' + blob.pathname
-      onUpload(proxyPath)
+      // Usa URL pública do CDN diretamente (sem proxy serverless)
+      onUpload(blob.url)
     } catch (e) {
       setError(String(e))
     } finally {

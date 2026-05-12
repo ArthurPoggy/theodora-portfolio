@@ -1,8 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { list } from '@vercel/blob'
 
-// Serve arquivos de mídia armazenados no Vercel Blob (store privado).
-// A URL pública do site usa /api/media/<targetDir>/<filename>.
+// Cache em memória: pathname → blob URL (só para blobs privados antigos)
+const urlCache: Record<string, string> = {}
+
+// Serve arquivos de mídia privados legados armazenados no Vercel Blob.
+// Novos uploads usam access:'public' e CDN direto — este proxy só existe
+// para compatibilidade com arquivos antigos que ainda usam /api/media/...
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405).end()
 
@@ -14,11 +18,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const blobPath = `media/${segments.join('/')}`
 
   try {
-    const { blobs } = await list({ prefix: blobPath, limit: 1 })
-    const blob = blobs.find((b) => b.pathname === blobPath)
-    if (!blob) return res.status(404).end()
+    let blobUrl = urlCache[blobPath]
 
-    const upstream = await fetch(blob.url, {
+    if (!blobUrl) {
+      const { blobs } = await list({ prefix: blobPath, limit: 1 })
+      const blob = blobs.find((b) => b.pathname === blobPath)
+      if (!blob) return res.status(404).end()
+      blobUrl = blob.url
+      urlCache[blobPath] = blobUrl
+    }
+
+    const upstream = await fetch(blobUrl, {
       headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` },
     })
     if (!upstream.ok) return res.status(upstream.status).end()

@@ -134,10 +134,6 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
     const key = section === 'galerias' ? 'galleries' : section === 'depoimentos' ? 'testimonials' : section === 'playlist' ? 'tracks' : section === 'sociais' ? 'social' : section === 'animacoes' ? 'animations' : section === 'sobre' ? 'about' : section === 'midias' ? 'overlays' : section
     const data = sectionDataMap[section]
     if (data === null || data === undefined) return
-    if (section === 'midias') {
-      console.log('[Admin] salvando overlays — páginas com data:', Object.keys(data as object))
-      console.log('[Admin] conteúdo completo:', JSON.stringify(data))
-    }
     setSaving(true)
     setSaveMsg('')
     try {
@@ -147,7 +143,6 @@ export default function AdminPage({ authed: initialAuthed }: AdminPageProps) {
         body: JSON.stringify({ data }),
       })
       const json = await res.json()
-      console.log('[Admin] resposta do servidor:', json)
       setSaveMsg(json.ok ? '✓ Salvo! As mudanças aparecem em até 30 segundos.' : `Erro: ${json.error}`)
     } catch (e) {
       setSaveMsg(`Erro: ${String(e)}`)

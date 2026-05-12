@@ -10,7 +10,6 @@ export function OverlaysProvider({ children }: { children: ReactNode }) {
     fetch('/api/public/overlays', { cache: 'no-store' })
       .then((r) => r.json())
       .then((data) => {
-        console.log('[OverlaysContext] API retornou páginas:', Object.keys(data || {}))
         if (data && typeof data === 'object') setOverlays(data)
       })
       .catch((e) => console.error('[OverlaysContext] erro ao buscar overlays:', e))

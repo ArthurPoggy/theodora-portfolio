@@ -14,17 +14,6 @@ export default function MediaOverlays() {
 
   const items = overlays[router.pathname] || []
 
-  useEffect(() => {
-    console.log('[MediaOverlays] pathname:', router.pathname)
-    console.log('[MediaOverlays] todos os overlays carregados:', overlays)
-    console.log('[MediaOverlays] itens nesta página:', items)
-    console.log('[MediaOverlays] hidden:', hidden)
-    const spotifyItems = items.filter((i) => i.type === 'spotify')
-    if (spotifyItems.length > 0) {
-      console.log('[MediaOverlays] Spotify encontrado:', spotifyItems)
-    }
-  }, [router.pathname, overlays, items, hidden])
-
   if (hidden || items.length === 0) return null
 
   return (
@@ -37,7 +26,6 @@ export default function MediaOverlays() {
 }
 
 function StaticOverlay({ item }: { item: MediaOverlay }) {
-  console.log('[StaticOverlay] item:', item.src, '| visible:', item.visible, '| type:', item.type)
   if (!item.visible) return null
 
   const positionStyle = buildPositionStyle(item)
@@ -46,7 +34,6 @@ function StaticOverlay({ item }: { item: MediaOverlay }) {
   if (item.type === 'spotify') {
     // MusicPlayer=40, Win98Scrollbar=30 — Spotify precisa aparecer acima dos dois
     const spotifyZ = Math.max(item.zIndex, 45)
-    console.log('[StaticOverlay] renderizando Spotify:', item.src, '| posição:', positionStyle, '| zIndex efetivo:', spotifyZ, '| visível:', item.visible)
     return (
       <div
         className={rootClass}
@@ -62,8 +49,6 @@ function StaticOverlay({ item }: { item: MediaOverlay }) {
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           allowFullScreen
           loading="lazy"
-          onLoad={() => console.log('[StaticOverlay] iframe Spotify carregou:', item.src)}
-          onError={() => console.error('[StaticOverlay] iframe Spotify ERRO ao carregar:', item.src)}
           style={{ width: '100%', height: '100%', border: 'none', borderRadius: 12 }}
         />
       </div>
@@ -77,8 +62,6 @@ function StaticOverlay({ item }: { item: MediaOverlay }) {
     pointerEvents: 'none',
     userSelect: 'none',
   }
-
-  console.log('[StaticOverlay] renderizando mídia:', item.src, '| tipo:', item.type, '| posição:', positionStyle, '| width:', item.width + 'vw', '| hideOnMobile:', item.hideOnMobile, '| rootClass:', rootClass)
 
   return (
     <div
@@ -96,8 +79,6 @@ function StaticOverlay({ item }: { item: MediaOverlay }) {
         <video
           src={item.src}
           autoPlay loop muted playsInline style={mediaStyle}
-          onLoadedData={() => console.log('[StaticOverlay] vídeo carregou:', item.src)}
-          onError={() => console.error('[StaticOverlay] ERRO ao carregar vídeo:', item.src)}
         />
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
@@ -105,8 +86,6 @@ function StaticOverlay({ item }: { item: MediaOverlay }) {
           src={item.src}
           alt=""
           style={mediaStyle}
-          onLoad={() => console.log('[StaticOverlay] imagem carregou:', item.src)}
-          onError={() => console.error('[StaticOverlay] ERRO ao carregar imagem:', item.src)}
         />
       )}
     </div>

@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       body: req.body as HandleUploadBody,
       request: req as unknown as Request,
       onBeforeGenerateToken: async () => ({
-        access: 'private',
+        access: 'public',
         addRandomSuffix: false,
         allowOverwrite: true,
         allowedContentTypes: ALLOWED_TYPES,
