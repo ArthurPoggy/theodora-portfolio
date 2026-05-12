@@ -4,7 +4,7 @@ import fs from 'fs'
 
 // Memória da função serverless: evita disparar 100 migrações concorrentes
 const migrationLock: Record<string, number> = {}
-const MIGRATION_COOLDOWN_MS = 60_000
+const MIGRATION_COOLDOWN_MS = 15_000
 
 /** Lê uma seção do CMS: tenta Blob primeiro, cai no filesystem como fallback.
  * Em background, dispara auto-migração se detectar paths legados (não bloqueia

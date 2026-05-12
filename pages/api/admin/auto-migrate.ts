@@ -12,6 +12,8 @@ export const config = {
 
 const SECTIONS = ['galleries', 'animations', 'about', 'home', 'overlays']
 const BATCH_DEFAULT = 3
+// Budget de execução: para antes que Vercel mate a function
+const TIME_BUDGET_MS = 50_000
 
 interface MigrateRequest {
   batch?: number
@@ -43,7 +45,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method !== 'POST') return res.status(405).end()
 
-  const { batch = BATCH_DEFAULT } = (req.body || {}) as MigrateRequest
+  // Default agora é alto — o time budget controla; muitos itens significam só que para no budget
+  const { batch = 100 } = (req.body || {}) as MigrateRequest
 
   try {
     const result = await processBatch(batch)
@@ -75,9 +78,11 @@ async function processBatch(batch: number): Promise<{
 }> {
   const errors: string[] = []
   let processed = 0
+  const startedAt = Date.now()
+  const timeUp = () => (Date.now() - startedAt) >= TIME_BUDGET_MS
 
   for (const section of SECTIONS) {
-    if (processed >= batch) break
+    if (processed >= batch || timeUp()) break
     const items = await findPendingInSection(section)
     if (items.length === 0) continue
 
@@ -85,23 +90,31 @@ async function processBatch(batch: number): Promise<{
     if (!content) continue
     let json = content
     let dirty = false
+    let savedAfterIdx = -1
 
-    for (const item of items) {
-      if (processed >= batch) break
+    for (let i = 0; i < items.length; i++) {
+      if (processed >= batch || timeUp()) break
+      const item = items[i]
       try {
         const newDescriptor = await processOne(item.src)
-        const oldFragment = JSON.stringify({ src: item.src })
-        // Substitui qualquer descriptor exato com aquele src
-        // Mais robusto: stringify do JSON, busca/substitui por regex baseado em src
         json = replaceDescriptor(json, item.src, newDescriptor)
         dirty = true
         processed += 1
+
+        // Salva periodicamente para que progresso não seja perdido se a função
+        // morrer (a cada 3 itens processados)
+        if (processed - savedAfterIdx >= 3) {
+          await putBlobSection(section, json)
+          savedAfterIdx = processed
+        }
       } catch (e) {
         errors.push(`${section}/${item.src}: ${String(e)}`)
       }
     }
 
-    if (dirty) await putBlobSection(section, json)
+    if (dirty && savedAfterIdx !== processed) {
+      await putBlobSection(section, json)
+    }
   }
 
   const remaining = await countPending()
