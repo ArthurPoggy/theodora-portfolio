@@ -2,14 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 
 export default function CustomCursor() {
   const ref = useRef<HTMLDivElement>(null)
-  const [enabled, setEnabled] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    // Desabilita em dispositivos sem hover (touch / mobile)
     if (typeof window === 'undefined') return
-    const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-    if (!supportsHover) return
-    setEnabled(true)
+    setMounted(true)
+
+    // Detecta touch-only (sem mouse/trackpad): aí esconde e nem instala listener
+    const touchOnly = window.matchMedia('(hover: none)').matches
+    if (touchOnly) return
 
     const el = ref.current
     if (!el) return
@@ -21,12 +22,11 @@ export default function CustomCursor() {
 
     function apply() {
       frame = 0
-      if (el) {
-        el.style.transform = `translate3d(${pendingX}px, ${pendingY}px, 0)`
-        if (!visible) {
-          el.style.opacity = '1'
-          visible = true
-        }
+      if (!el) return
+      el.style.transform = `translate3d(${pendingX}px, ${pendingY}px, 0)`
+      if (!visible) {
+        el.style.opacity = '1'
+        visible = true
       }
     }
 
@@ -36,7 +36,8 @@ export default function CustomCursor() {
       if (!frame) frame = requestAnimationFrame(apply)
     }
     function onLeave() {
-      if (el) el.style.opacity = '0'
+      if (!el) return
+      el.style.opacity = '0'
       visible = false
     }
 
@@ -49,7 +50,7 @@ export default function CustomCursor() {
     }
   }, [])
 
-  if (!enabled) return null
+  if (!mounted) return null
 
   return (
     <div
@@ -67,6 +68,7 @@ export default function CustomCursor() {
         imageRendering: 'pixelated',
       }}
     >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/cursor.png" alt="" style={{ width: '100%', height: 'auto', display: 'block' }} />
     </div>
   )
