@@ -14,9 +14,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const jsonResponse = await handleUpload({
       body: req.body as HandleUploadBody,
-      request: req as unknown as Request,
+      request: req, // NextApiRequest extends IncomingMessage, aceito diretamente pelo SDK
       onBeforeGenerateToken: async () => ({
-        access: 'public',
         addRandomSuffix: false,
         allowOverwrite: true,
         allowedContentTypes: ALLOWED_TYPES,
