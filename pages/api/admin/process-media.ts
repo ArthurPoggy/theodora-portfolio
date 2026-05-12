@@ -21,9 +21,8 @@ interface ProcessMediaRequest {
   description?: string
 }
 
-/** Aceita ?internal=<key> ou cookie de admin como autenticação */
 function isAllowed(req: NextApiRequest): boolean {
-  const internalKey = process.env.INTERNAL_API_KEY
+  const internalKey = process.env.INTERNAL_API_KEY || process.env.BLOB_READ_WRITE_TOKEN
   if (internalKey && req.headers['x-internal-key'] === internalKey) return true
   return isAuthenticated(req)
 }

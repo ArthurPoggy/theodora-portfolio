@@ -18,7 +18,8 @@ interface MigrateRequest {
 }
 
 function isAllowed(req: NextApiRequest): boolean {
-  const key = process.env.INTERNAL_API_KEY
+  // Aceita INTERNAL_API_KEY ou BLOB_READ_WRITE_TOKEN (que sempre existe quando há Blob conectado)
+  const key = process.env.INTERNAL_API_KEY || process.env.BLOB_READ_WRITE_TOKEN
   if (key && req.headers['x-internal-key'] === key) return true
   return isAuthenticated(req)
 }

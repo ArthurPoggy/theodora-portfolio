@@ -22,8 +22,9 @@ export async function getCmsData<T>(section: string): Promise<T> {
 
 /** Detecta heuristicamente paths legados e dispara auto-migrate fire-and-forget. */
 function maybeTriggerMigration(section: string, content: string): void {
-  if (!process.env.INTERNAL_API_KEY) return // sem chave, não dispara
-  // Heurística: tem URL de blob sem `"variants"` num descriptor próximo
+  const internalKey = process.env.INTERNAL_API_KEY || process.env.BLOB_READ_WRITE_TOKEN
+  if (!internalKey) return
+
   const hasLegacyProxy = content.includes('/api/media/')
   const hasMissingVariants = /"src"\s*:\s*"https?:\/\/[^"]*\.blob\.vercel-storage\.com/.test(content)
     && !content.includes('"variants"')
@@ -39,12 +40,12 @@ function maybeTriggerMigration(section: string, content: string): void {
     : process.env.NEXT_PUBLIC_BASE_URL || ''
   if (!baseUrl) return
 
-  // Fire-and-forget — não dá await pra não bloquear o request atual
+  // Fire-and-forget — não bloqueia a resposta atual
   fetch(`${baseUrl}/api/admin/auto-migrate`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-internal-key': process.env.INTERNAL_API_KEY,
+      'x-internal-key': internalKey,
     },
     body: JSON.stringify({ batch: 3 }),
   }).catch(() => {})
