@@ -1,14 +1,13 @@
 /**
- * Helper para construir URLs do ImageKit a partir de URLs do Vercel Blob.
+ * Helper para construir URLs do ImageKit usando o modo Full-URL.
  *
- * Configuração: definir NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT no env, ex:
- *   NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/theodorad
+ * Não requer configuração de "External Storage" no painel ImageKit.
+ * Basta definir a variável de ambiente com o endpoint da sua conta:
  *
- * No painel ImageKit, configurar External Storage (Origin) apontando para
- * a URL pública do Vercel Blob:
- *   URL endpoint type: Web Folder
- *   Web folder origin: https://{store-id}.public.blob.vercel-storage.com
- *   Origin identifier: vercel-blob
+ *   NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/SEU_ID
+ *
+ * O URL endpoint fica visível no painel em:
+ *   ImageKit Dashboard → URL Endpoints → Default
  *
  * Sem env var configurada, o helper retorna a URL original (graceful fallback).
  */
@@ -23,27 +22,25 @@ export interface ImageKitOpts {
 }
 
 /**
- * Constrói a URL do ImageKit ou retorna a URL original se não houver
- * endpoint configurado / se o src não for transformável.
+ * Constrói URL no modo Full-URL do ImageKit:
+ *   https://ik.imagekit.io/{id}/tr:w-800,q-80,f-auto/<url-completa-da-imagem>
+ *
+ * O ImageKit busca a URL-fonte, aplica a transformação e faz cache no CDN.
+ * Funciona com qualquer URL pública — sem precisar de "External Storage" configurado.
  */
 export function buildImageKitUrl(src: string, opts: ImageKitOpts = {}): string {
-  // Sem ImageKit configurado? Retorna o original
   if (!IK_ENDPOINT) return src
-
-  // Não tenta transformar: SVGs locais, dataURIs, embeds Spotify, etc.
   if (!src) return src
   if (src.startsWith('data:') || src.startsWith('blob:')) return src
   if (src.includes('spotify.com')) return src
-  if (src.startsWith('/') && !src.startsWith('/api/media/')) return src // assets locais
 
-  // Extrai o pathname dentro do origin do Vercel Blob
-  const pathname = extractPathname(src)
-  if (!pathname) return src
+  // Assets locais (SVGs, fontes etc.) que não estão no Blob
+  if (src.startsWith('/') && !src.startsWith('/api/media/')) return src
 
-  // Monta transformação ImageKit. Valores recomendados:
-  //   q-80 = qualidade boa com tamanho enxuto
-  //   f-auto = ImageKit escolhe WebP/AVIF baseado em Accept header
-  //   tr=blur-X para LQIP
+  // Para o modo Full-URL, precisamos da URL pública completa da imagem
+  const fullSrc = toPublicUrl(src)
+  if (!fullSrc) return src
+
   const trParts: string[] = []
   if (opts.w) trParts.push(`w-${opts.w}`)
   trParts.push(`q-${opts.q ?? 80}`)
@@ -51,30 +48,39 @@ export function buildImageKitUrl(src: string, opts: ImageKitOpts = {}): string {
   if (opts.blur) trParts.push(`bl-${opts.blur}`)
 
   const tr = trParts.join(',')
-  // Path no ImageKit é o mesmo pathname relativo do origin (sem o /media/ prefix
-  // porque o origin já é o Vercel Blob inteiro)
   const endpoint = IK_ENDPOINT.replace(/\/$/, '')
-  return `${endpoint}/${pathname}?tr=${tr}`
+
+  // Modo Full-URL: /tr:<transformações>/<url-completa>
+  return `${endpoint}/tr:${tr}/${fullSrc}`
 }
 
 /**
- * Extrai o pathname relativo do origin Vercel Blob a partir de qualquer
- * forma de URL que possamos ter armazenado.
+ * Converte qualquer forma de URL que possa estar salva no CMS para uma URL
+ * pública completa que o ImageKit consegue buscar.
  *
  * Aceita:
- *   - https://{store}.public.blob.vercel-storage.com/media/dir/file.jpg → media/dir/file.jpg
- *   - /api/media/dir/file.jpg → media/dir/file.jpg
- *   - media/dir/file.jpg → media/dir/file.jpg
+ *   https://{store}.public.blob.vercel-storage.com/media/...  → retorna como está
+ *   /api/media/dir/file.jpg                                    → não pode resolver no cliente (retorna null)
+ *   media/dir/file.jpg                                         → não pode resolver sem o store ID (retorna null)
  */
-function extractPathname(url: string): string | null {
-  // URL pública do Vercel Blob
-  const blobMatch = url.match(/\.public\.blob\.vercel-storage\.com\/(.+?)(?:\?|$)/)
-  if (blobMatch) return blobMatch[1]
-  // Proxy legado
-  const proxyMatch = url.match(/\/api\/media\/(.+?)(?:\?|$)/)
-  if (proxyMatch) return `media/${proxyMatch[1]}`
-  // Já é pathname relativo
-  if (url.startsWith('media/')) return url
+function toPublicUrl(src: string): string | null {
+  // Já é URL pública completa do Vercel Blob — perfeito para Full-URL mode
+  if (src.includes('blob.vercel-storage.com')) return src
+
+  // URLs de outros CDNs públicos (ex: se já migrou para outro provider)
+  if (src.startsWith('https://')) return src
+
+  // Paths legados /api/media/... não têm base URL disponível no cliente,
+  // mas /api/media/ já faz redirect 308 para a URL pública do blob,
+  // então o ImageKit vai seguir o redirect e achar o arquivo.
+  const baseUrl = typeof window !== 'undefined'
+    ? window.location.origin
+    : process.env.NEXT_PUBLIC_BASE_URL || ''
+
+  if (baseUrl && src.startsWith('/api/media/')) {
+    return `${baseUrl}${src}`
+  }
+
   return null
 }
 
