@@ -58,29 +58,22 @@ export function buildImageKitUrl(src: string, opts: ImageKitOpts = {}): string {
  * Converte qualquer forma de URL que possa estar salva no CMS para uma URL
  * pública completa que o ImageKit consegue buscar.
  *
- * Aceita:
- *   https://{store}.public.blob.vercel-storage.com/media/...  → retorna como está
- *   /api/media/dir/file.jpg                                    → não pode resolver no cliente (retorna null)
- *   media/dir/file.jpg                                         → não pode resolver sem o store ID (retorna null)
+ * Apenas URLs públicas do Vercel Blob são passadas para o ImageKit.
+ * Paths /api/media/... retornam null para que o src original seja usado
+ * diretamente — o proxy local serve esses blobs (possivelmente privados)
+ * sem depender do ImageKit.
  */
 function toPublicUrl(src: string): string | null {
-  // Já é URL pública completa do Vercel Blob — perfeito para Full-URL mode
-  if (src.includes('blob.vercel-storage.com')) return src
+  // URL pública do Vercel Blob — ImageKit consegue buscar diretamente
+  if (src.includes('.public.blob.vercel-storage.com')) return src
 
-  // URLs de outros CDNs públicos (ex: se já migrou para outro provider)
-  if (src.startsWith('https://')) return src
+  // URLs de outros CDNs públicos conhecidos
+  if (src.startsWith('https://ik.imagekit.io')) return null // já é ImageKit, não re-envolve
+  if (src.startsWith('https://') && !src.includes('/api/media/')) return src
 
-  // Paths legados /api/media/... não têm base URL disponível no cliente,
-  // mas /api/media/ já faz redirect 308 para a URL pública do blob,
-  // então o ImageKit vai seguir o redirect e achar o arquivo.
-  const baseUrl = typeof window !== 'undefined'
-    ? window.location.origin
-    : process.env.NEXT_PUBLIC_BASE_URL || ''
-
-  if (baseUrl && src.startsWith('/api/media/')) {
-    return `${baseUrl}${src}`
-  }
-
+  // /api/media/... = blob possivelmente privado.
+  // O proxy /api/media/ serve com autenticação, mas o ImageKit não tem como
+  // acessá-lo sem auth — retorna null para usar o proxy diretamente.
   return null
 }
 
