@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { SocialLinks } from '@/types/cms'
+import type { SocialLinks, PagesData } from '@/types/cms'
 import { fetchWithCache } from '@/lib/session-cache'
 
 const DEFAULT_SOCIAL: SocialLinks = {
@@ -11,14 +11,10 @@ const DEFAULT_SOCIAL: SocialLinks = {
   itchio: 'https://by-theodora-d.itch.io/',
 }
 
-const NAV_LINKS = [
+interface NavLink { href: string; label: string }
+
+const FALLBACK_NAV: NavLink[] = [
   { href: '/', label: 'Home' },
-  { href: '/modelagem-3d', label: 'Modelagem 3D' },
-  { href: '/ilustracoes', label: 'Ilustrações' },
-  { href: '/concept-art', label: 'Concept Art' },
-  { href: '/animacoes', label: 'Animações' },
-  { href: '/trabalhos-fisicos', label: 'Trabalhos Físicos' },
-  { href: '/encomendados', label: 'Encomendados' },
   { href: '/sobre', label: 'Sobre' },
 ]
 
@@ -45,12 +41,27 @@ export default function Header() {
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
   const [social, setSocial] = useState<SocialLinks>(DEFAULT_SOCIAL)
+  const [navLinks, setNavLinks] = useState<NavLink[]>(FALLBACK_NAV)
 
   useEffect(() => {
     fetchWithCache<SocialLinks>('cms:social', '/api/public/social').then((data) => {
       if (data?.linkedin) setSocial(data)
     })
+    fetchWithCache<PagesData>('cms:pages', '/api/public/pages').then((pages) => {
+      if (!Array.isArray(pages)) return
+      const dynamic = pages
+        .filter((p) => !p.hideFromNav)
+        .sort((a, b) => a.order - b.order)
+        .map((p) => ({ href: `/${p.slug}`, label: p.label }))
+      setNavLinks([
+        { href: '/', label: 'Home' },
+        ...dynamic,
+        { href: '/sobre', label: 'Sobre' },
+      ])
+    })
   }, [])
+
+  const NAV_LINKS = navLinks
 
   return (
     <header className="w-full bg-bg/95 backdrop-blur-sm border-b border-bg-card sticky top-0 z-50">

@@ -28,8 +28,19 @@ export default function App({ Component, pageProps }: AppProps) {
   }, [])
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
+    }
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
+  }, [])
+
+  useEffect(() => {
     trackPageVisit(router.pathname)
-    const handleRouteChange = (url: string) => trackPageVisit(url)
+    const handleRouteChange = (url: string) => {
+      trackPageVisit(url)
+      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
+    }
     router.events.on('routeChangeComplete', handleRouteChange)
     return () => router.events.off('routeChangeComplete', handleRouteChange)
   }, [router])

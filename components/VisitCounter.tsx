@@ -11,9 +11,9 @@ export default function VisitCounter({ className = '' }: VisitCounterProps) {
   useEffect(() => {
     let cancelled = false
 
-    fetch('https://api.countapi.xyz/hit/theodora-portfolio/visits')
+    fetch('/api/public/visits', { method: 'POST', credentials: 'include' })
       .then((res) => {
-        if (!res.ok) throw new Error('countapi error')
+        if (!res.ok) throw new Error('visits endpoint error')
         return res.json() as Promise<{ value: number }>
       })
       .then((data) => {

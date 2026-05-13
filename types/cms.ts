@@ -37,13 +37,17 @@ export interface ConceptArtGallery {
   personagem: GalleryImage[]
 }
 
+/**
+ * Tipo legado — mantido apenas porque `data/galleries.json` ainda existe como
+ * fallback final de leitura no `lib/cms-server.ts`. A fonte da verdade agora é
+ * `PagesData` (manifesto dinâmico via /api/admin/data/pages).
+ */
 export interface GalleriesData {
   modelagem3d: GalleryImage[]
   ilustracoes: GalleryImage[]
   conceptArt: ConceptArtGallery
   trabalhosFisicos: GalleryImage[]
   encomendados: GalleryImage[]
-  branding: GalleryImage[]
   nsfw: GalleryImage[]
 }
 
@@ -84,6 +88,7 @@ export interface MarqueeItem {
 export interface HomeData {
   heroText: string
   heroBio: string
+  photoSrc: string
   marqueeRow1: MarqueeItem[]
   marqueeRow2: MarqueeItem[]
 }
@@ -133,3 +138,32 @@ export interface MediaOverlay {
 }
 
 export type OverlaysData = Record<string, MediaOverlay[]>
+
+// ─── Páginas dinâmicas ──────────────────────────────────────────────────
+
+export type DynamicPageType = 'gallery' | 'tabs-gallery' | 'animations'
+
+export interface GalleryTab {
+  key: string
+  label: string
+  images: GalleryImage[]
+}
+
+export interface DynamicPage {
+  slug: string
+  label: string
+  type: DynamicPageType
+  isNsfw: boolean
+  hideFromNav: boolean
+  order: number
+  description?: string
+  /** Para type='gallery' */
+  images?: GalleryImage[]
+  /** Para type='tabs-gallery' */
+  tabs?: GalleryTab[]
+  /** Para type='animations' */
+  gifs?: GalleryImage[]
+  videos?: VideoItem[]
+}
+
+export type PagesData = DynamicPage[]

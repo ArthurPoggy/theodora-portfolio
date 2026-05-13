@@ -49,14 +49,6 @@
     { "src": "/images/placeholder-ilustracao-5.svg", "alt": "Encomenda - Obra 5" },
     { "src": "/images/placeholder-ilustracao-6.svg", "alt": "Encomenda - Obra 6" }
   ],
-  "branding": [
-    { "src": "/images/placeholder-branding-1.svg", "alt": "Branding - Projeto 1" },
-    { "src": "/images/placeholder-branding-2.svg", "alt": "Branding - Projeto 2" },
-    { "src": "/images/placeholder-branding-3.svg", "alt": "Branding - Projeto 3" },
-    { "src": "/images/placeholder-branding-4.svg", "alt": "Branding - Projeto 4" },
-    { "src": "/images/placeholder-branding-5.svg", "alt": "Branding - Projeto 5" },
-    { "src": "/images/placeholder-branding-6.svg", "alt": "Branding - Projeto 6" }
-  ],
   "nsfw": [
     { "src": "/images/placeholder-ilustracao-1.svg", "alt": "NSFW - Obra 1" },
     { "src": "/images/placeholder-ilustracao-2.svg", "alt": "NSFW - Obra 2" },

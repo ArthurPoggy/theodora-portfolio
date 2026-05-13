@@ -7,32 +7,32 @@ import TypeWriter from '@/components/TypeWriter'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import type { HomeData, Testimonial } from '@/types/cms'
+import type { HomeData, Testimonial, PagesData } from '@/types/cms'
 import { getCmsData } from '@/lib/cms-server'
 
-const GALLERY_PAGES = [
-  { href: '/modelagem-3d', label: 'Modelagem 3D' },
-  { href: '/ilustracoes', label: 'Ilustrações' },
-  { href: '/concept-art', label: 'Concept Art' },
-  { href: '/animacoes', label: 'Animações' },
-  { href: '/trabalhos-fisicos', label: 'Trabalhos Físicos' },
-  { href: '/encomendados', label: 'Encomendados' },
-]
+interface GalleryLink { href: string; label: string }
 
 interface Props {
   home: HomeData
   testimonials: Testimonial[]
+  galleryPages: GalleryLink[]
 }
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const [home, testimonials] = await Promise.all([
+  const [home, testimonials, pages] = await Promise.all([
     getCmsData<HomeData>('home'),
     getCmsData<Testimonial[]>('testimonials'),
+    getCmsData<PagesData>('pages').catch(() => [] as PagesData),
   ])
-  return { props: { home, testimonials }, revalidate: 30 }
+  const galleryPages: GalleryLink[] = (Array.isArray(pages) ? pages : [])
+    .filter((p) => !p.hideFromNav)
+    .sort((a, b) => a.order - b.order)
+    .map((p) => ({ href: `/${p.slug}`, label: p.label }))
+  return { props: { home, testimonials, galleryPages }, revalidate: 30 }
 }
 
-export default function HomePage({ home, testimonials }: Props) {
+export default function HomePage({ home, testimonials, galleryPages }: Props) {
+  const GALLERY_PAGES = galleryPages
   return (
     <Layout
       title="Home"
@@ -52,11 +52,12 @@ export default function HomePage({ home, testimonials }: Props) {
               {/* Foto */}
               <div className="relative w-56 h-56 lg:w-72 lg:h-72 rounded-xl overflow-hidden border-2 border-accent/40 flex-shrink-0">
                 <Image
-                  src="/images/artista.svg"
+                  src={home.photoSrc || '/images/artista.svg'}
                   alt="By Theodora D."
                   fill
                   className="object-cover"
                   priority
+                  unoptimized
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-bg-card to-accent/20 flex items-center justify-center">
                   <span className="font-display text-accent text-6xl font-bold select-none">T</span>

@@ -18,6 +18,7 @@ const config: Config = {
           light: '#cfc0fe',
           dark: '#9275e0',
         },
+        pastel: '#f5c6ff',
         foreground: {
           DEFAULT: '#f5feff',
           muted: '#a0a0a0',

@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { Rnd } from 'react-rnd'
-import type { OverlaysData, MediaOverlay } from '@/types/cms'
+import type { OverlaysData, MediaOverlay, PagesData } from '@/types/cms'
 import ImageUploader from './ImageUploader'
 import OverlayPropsPanel from './OverlayPropsPanel'
 
@@ -21,17 +21,9 @@ interface OverlaysEditorProps {
   onChange: (data: OverlaysData) => void
 }
 
-const PAGES: { route: string; label: string }[] = [
+const FIXED_PAGES: { route: string; label: string }[] = [
   { route: '/', label: 'Home' },
   { route: '/sobre', label: 'Sobre' },
-  { route: '/modelagem-3d', label: 'Modelagem 3D' },
-  { route: '/ilustracoes', label: 'Ilustrações' },
-  { route: '/concept-art', label: 'Concept Art' },
-  { route: '/animacoes', label: 'Animações' },
-  { route: '/branding', label: 'Branding' },
-  { route: '/encomendados', label: 'Encomendados' },
-  { route: '/nsfw', label: 'NSFW' },
-  { route: '/trabalhos-fisicos', label: 'Trabalhos Físicos' },
   { route: '/contato', label: 'Contato' },
 ]
 
@@ -136,6 +128,19 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
   const [spotifyError, setSpotifyError] = useState('')
   // src -> aspect ratio (natural)
   const [aspectRatios, setAspectRatios] = useState<Record<string, number>>({})
+  const [PAGES, setPages] = useState<{ route: string; label: string }[]>(FIXED_PAGES)
+
+  useEffect(() => {
+    fetch('/api/public/pages')
+      .then((r) => r.ok ? r.json() as Promise<PagesData> : [])
+      .then((pages) => {
+        const dynamic = (Array.isArray(pages) ? pages : [])
+          .sort((a, b) => a.order - b.order)
+          .map((p) => ({ route: `/${p.slug}`, label: p.label }))
+        setPages([...FIXED_PAGES, ...dynamic])
+      })
+      .catch(() => { /* mantém apenas FIXED_PAGES */ })
+  }, [])
 
   const canvasContainerRef = useRef<HTMLDivElement>(null)
   const dataRef = useRef<OverlaysData>(data)

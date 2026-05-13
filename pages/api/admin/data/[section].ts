@@ -5,7 +5,7 @@ import { getImageKitJson, putImageKitJson, isImageKitStorageEnabled } from '@/li
 import path from 'path'
 import fs from 'fs'
 
-const VALID_SECTIONS = ['galleries', 'animations', 'about', 'testimonials', 'tracks', 'home', 'social', 'overlays']
+const VALID_SECTIONS = ['galleries', 'animations', 'about', 'testimonials', 'tracks', 'home', 'social', 'overlays', 'pages']
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { section } = req.query as { section: string }

@@ -6,10 +6,12 @@ const PAGE_LABELS: Record<string, string> = {
   '/modelagem-3d': 'Modelagem 3D',
   '/ilustracoes': 'Ilustrações',
   '/concept-art': 'Concept Art',
-  '/branding': 'Branding Jobs',
+  '/animacoes': 'Animações',
   '/trabalhos-fisicos': 'Trabalhos Físicos',
+  '/encomendados': 'Encomendados',
   '/sobre': 'Sobre a Artista',
   '/contato': 'Contato',
+  '/nsfw': 'NSFW',
 }
 
 export default function StatsPage() {

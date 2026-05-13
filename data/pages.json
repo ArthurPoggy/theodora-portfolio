@@ -1,0 +1,135 @@
+[
+  {
+    "slug": "modelagem-3d",
+    "label": "Modelagem 3D",
+    "type": "gallery",
+    "isNsfw": false,
+    "hideFromNav": false,
+    "order": 1,
+    "description": "Galeria de trabalhos de modelagem 3D por by.TheodoraD",
+    "images": [
+      { "src": "/images/placeholder-3d-1.svg", "alt": "Modelagem 3D - Obra 1" },
+      { "src": "/images/placeholder-3d-2.svg", "alt": "Modelagem 3D - Obra 2" },
+      { "src": "/images/placeholder-3d-3.svg", "alt": "Modelagem 3D - Obra 3" },
+      { "src": "/images/placeholder-3d-4.svg", "alt": "Modelagem 3D - Obra 4" },
+      { "src": "/images/placeholder-3d-5.svg", "alt": "Modelagem 3D - Obra 5" },
+      { "src": "/images/placeholder-3d-6.svg", "alt": "Modelagem 3D - Obra 6" }
+    ]
+  },
+  {
+    "slug": "ilustracoes",
+    "label": "Ilustrações",
+    "type": "gallery",
+    "isNsfw": false,
+    "hideFromNav": false,
+    "order": 2,
+    "description": "Galeria de ilustrações por by.TheodoraD",
+    "images": [
+      { "src": "/images/placeholder-ilustracao-1.svg", "alt": "Ilustração - Obra 1" },
+      { "src": "/images/placeholder-ilustracao-2.svg", "alt": "Ilustração - Obra 2" },
+      { "src": "/images/placeholder-ilustracao-3.svg", "alt": "Ilustração - Obra 3" },
+      { "src": "/images/placeholder-ilustracao-4.svg", "alt": "Ilustração - Obra 4" },
+      { "src": "/images/placeholder-ilustracao-5.svg", "alt": "Ilustração - Obra 5" },
+      { "src": "/images/placeholder-ilustracao-6.svg", "alt": "Ilustração - Obra 6" }
+    ]
+  },
+  {
+    "slug": "concept-art",
+    "label": "Concept Art",
+    "type": "tabs-gallery",
+    "isNsfw": false,
+    "hideFromNav": false,
+    "order": 3,
+    "description": "Galeria de concept art por By Theodora D.",
+    "tabs": [
+      {
+        "key": "cenario",
+        "label": "Cenário",
+        "images": [
+          { "src": "/images/placeholder-concept-1.svg", "alt": "Cenário - Obra 1" },
+          { "src": "/images/placeholder-concept-2.svg", "alt": "Cenário - Obra 2" },
+          { "src": "/images/placeholder-concept-3.svg", "alt": "Cenário - Obra 3" },
+          { "src": "/images/placeholder-concept-4.svg", "alt": "Cenário - Obra 4" },
+          { "src": "/images/placeholder-concept-5.svg", "alt": "Cenário - Obra 5" },
+          { "src": "/images/placeholder-concept-6.svg", "alt": "Cenário - Obra 6" }
+        ]
+      },
+      {
+        "key": "personagem",
+        "label": "Personagem",
+        "images": [
+          { "src": "/images/placeholder-ilustracao-1.svg", "alt": "Personagem - Obra 1" },
+          { "src": "/images/placeholder-ilustracao-2.svg", "alt": "Personagem - Obra 2" },
+          { "src": "/images/placeholder-ilustracao-3.svg", "alt": "Personagem - Obra 3" },
+          { "src": "/images/placeholder-ilustracao-4.svg", "alt": "Personagem - Obra 4" },
+          { "src": "/images/placeholder-ilustracao-5.svg", "alt": "Personagem - Obra 5" },
+          { "src": "/images/placeholder-ilustracao-6.svg", "alt": "Personagem - Obra 6" }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "animacoes",
+    "label": "Animações",
+    "type": "animations",
+    "isNsfw": false,
+    "hideFromNav": false,
+    "order": 4,
+    "description": "Galeria de animações e vídeos por by.TheodoraD",
+    "gifs": [
+      { "src": "/images/placeholder-concept-1.svg", "alt": "GIF - Animação 1" }
+    ],
+    "videos": [
+      { "type": "youtube", "title": "Animação 1", "youtubeId": "dQw4w9WgXcQ" },
+      { "type": "youtube", "title": "Animação 2", "youtubeId": "dQw4w9WgXcQ" }
+    ]
+  },
+  {
+    "slug": "trabalhos-fisicos",
+    "label": "Trabalhos Físicos",
+    "type": "gallery",
+    "isNsfw": false,
+    "hideFromNav": false,
+    "order": 5,
+    "description": "Galeria de trabalhos físicos e tradicionais por by.TheodoraD",
+    "images": [
+      { "src": "/images/placeholder-fisico-1.svg", "alt": "Trabalho Físico - Obra 1" },
+      { "src": "/images/placeholder-fisico-2.svg", "alt": "Trabalho Físico - Obra 2" },
+      { "src": "/images/placeholder-fisico-3.svg", "alt": "Trabalho Físico - Obra 3" },
+      { "src": "/images/placeholder-fisico-4.svg", "alt": "Trabalho Físico - Obra 4" },
+      { "src": "/images/placeholder-fisico-5.svg", "alt": "Trabalho Físico - Obra 5" },
+      { "src": "/images/placeholder-fisico-6.svg", "alt": "Trabalho Físico - Obra 6" }
+    ]
+  },
+  {
+    "slug": "encomendados",
+    "label": "Encomendados",
+    "type": "gallery",
+    "isNsfw": false,
+    "hideFromNav": false,
+    "order": 6,
+    "description": "Portfolio de trabalhos encomendados por by.TheodoraD",
+    "images": [
+      { "src": "/images/placeholder-ilustracao-1.svg", "alt": "Encomenda - Obra 1" },
+      { "src": "/images/placeholder-ilustracao-2.svg", "alt": "Encomenda - Obra 2" },
+      { "src": "/images/placeholder-ilustracao-3.svg", "alt": "Encomenda - Obra 3" },
+      { "src": "/images/placeholder-ilustracao-4.svg", "alt": "Encomenda - Obra 4" },
+      { "src": "/images/placeholder-ilustracao-5.svg", "alt": "Encomenda - Obra 5" },
+      { "src": "/images/placeholder-ilustracao-6.svg", "alt": "Encomenda - Obra 6" }
+    ]
+  },
+  {
+    "slug": "nsfw",
+    "label": "NSFW",
+    "type": "gallery",
+    "isNsfw": true,
+    "hideFromNav": true,
+    "order": 99,
+    "description": "Conteúdo adulto — acesso restrito a maiores de 18 anos",
+    "images": [
+      { "src": "/images/placeholder-ilustracao-1.svg", "alt": "NSFW - Obra 1" },
+      { "src": "/images/placeholder-ilustracao-2.svg", "alt": "NSFW - Obra 2" },
+      { "src": "/images/placeholder-ilustracao-3.svg", "alt": "NSFW - Obra 3" }
+    ]
+  }
+]
