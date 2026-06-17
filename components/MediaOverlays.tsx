@@ -12,7 +12,10 @@ export default function MediaOverlays() {
     setHidden(router.query.noOverlays === '1')
   }, [router.query.noOverlays])
 
-  const items = overlays[router.pathname] || []
+  // Usa a URL real (asPath sem query/hash) — não router.pathname, que para as
+  // páginas dinâmicas seria o padrão "/[slug]" em vez de "/modelagem-3d".
+  const realPath = router.asPath.split(/[?#]/)[0]
+  const items = overlays[realPath] || []
 
   if (hidden || items.length === 0) return null
 

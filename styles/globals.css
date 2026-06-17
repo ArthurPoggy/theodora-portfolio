@@ -43,8 +43,16 @@ body {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  body,
-  *, a, button, [role="button"], label, select, input[type="submit"], input[type="button"], input[type="reset"] {
+  html:not(.admin-page-html) body,
+  html:not(.admin-page-html) *,
+  html:not(.admin-page-html) a,
+  html:not(.admin-page-html) button,
+  html:not(.admin-page-html) [role="button"],
+  html:not(.admin-page-html) label,
+  html:not(.admin-page-html) select,
+  html:not(.admin-page-html) input[type="submit"],
+  html:not(.admin-page-html) input[type="button"],
+  html:not(.admin-page-html) input[type="reset"] {
     cursor: none;
   }
 }

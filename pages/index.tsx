@@ -51,6 +51,11 @@ export default function HomePage({ home, testimonials, galleryPages }: Props) {
             <div className="bg-bg flex flex-col lg:flex-row items-center gap-10 p-8">
               {/* Foto */}
               <div className="relative w-56 h-56 lg:w-72 lg:h-72 rounded-xl overflow-hidden border-2 border-accent/40 flex-shrink-0">
+                {/* Fallback decorativo — fica ATRÁS da foto; só aparece se a imagem
+                    for transparente/não carregar. */}
+                <div className="absolute inset-0 bg-gradient-to-br from-bg-card to-accent/20 flex items-center justify-center">
+                  <span className="font-display text-accent text-6xl font-bold select-none">T</span>
+                </div>
                 <Image
                   src={home.photoSrc || '/images/artista.svg'}
                   alt="By Theodora D."
@@ -59,9 +64,6 @@ export default function HomePage({ home, testimonials, galleryPages }: Props) {
                   priority
                   unoptimized
                 />
-                <div className="absolute inset-0 bg-gradient-to-br from-bg-card to-accent/20 flex items-center justify-center">
-                  <span className="font-display text-accent text-6xl font-bold select-none">T</span>
-                </div>
               </div>
 
               {/* Texto */}
