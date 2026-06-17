@@ -344,7 +344,10 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
                   size={{ width: w, height: finalH }}
                   lockAspectRatio={isSpotify ? false : (ar > 0 ? ar : false)}
                   enableResizing={{
-                    topLeft: !isSpotify, topRight: !isSpotify, bottomLeft: !isSpotify, bottomRight: !isSpotify,
+                    // Cantos habilitados para ambos: imagens mantêm proporção
+                    // (lockAspectRatio=ar); Spotify redimensiona livre (lockAspectRatio=false).
+                    topLeft: true, topRight: true, bottomLeft: true, bottomRight: true,
+                    // Spotify ganha também as bordas reta/baixo p/ ajustar só um eixo.
                     top: false, bottom: isSpotify, left: false, right: isSpotify,
                   }}
                   bounds="parent"
