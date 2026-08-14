@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { Rnd } from 'react-rnd'
-import type { OverlaysData, MediaOverlay, PagesData } from '@/types/cms'
+import { SPOTIFY_MIN_HEIGHT, type OverlaysData, type MediaOverlay, type PagesData } from '@/types/cms'
 import ImageUploader from './ImageUploader'
 import OverlayPropsPanel from './OverlayPropsPanel'
 
@@ -31,6 +31,21 @@ const FIXED_PAGES: { route: string; label: string }[] = [
 const NATIVE_W = 1440
 // Altura nativa — canvas rola verticalmente para representar a página inteira
 const NATIVE_H = 3200
+// Altura de referência da JANELA (1440×800, laptop comum).
+//
+// Overlays com positioning:'viewport' viram `position: fixed`, então o y deles
+// é medido contra a janela — não contra a página inteira. Sem esse limite dá
+// pra arrastar um item até y=2000 no canvas, ver ele ali no editor, e ele
+// simplesmente não existir no site.
+const NATIVE_VIEWPORT_H = 800
+
+/**
+ * Altura contra a qual o y do item é medido: a janela para overlays fixos,
+ * a página inteira para os que rolam junto com o conteúdo.
+ */
+function verticalSpan(item: MediaOverlay, canvasH: number, scale: number): number {
+  return item.positioning === 'viewport' ? NATIVE_VIEWPORT_H * scale : canvasH
+}
 
 function detectMediaType(src: string): 'image' | 'video' {
   return /\.mp4$/i.test(src) ? 'video' : 'image'
@@ -88,7 +103,7 @@ function toCanvasPos(item: MediaOverlay, canvasW: number, canvasH: number, aspec
   if (item.anchor === 'tl' || item.anchor === 'tr') {
     y = item.y * scale
   } else {
-    y = canvasH - h - item.y * scale
+    y = verticalSpan(item, canvasH, scale) - h - item.y * scale
   }
 
   return { x, y, w, h }
@@ -113,7 +128,15 @@ function fromCanvasPos(
   if (item.anchor === 'tl' || item.anchor === 'tr') {
     y = yPx / scale
   } else {
-    y = (canvasH - heightPx - yPx) / scale
+    y = (verticalSpan(item, canvasH, scale) - heightPx - yPx) / scale
+  }
+
+  // Item fixo arrastado para fora da janela não aparece no site — prende ele na
+  // faixa visível. Como o `position` do Rnd é recalculado a partir do valor
+  // salvo, ele volta sozinho pra dentro da dobra ao soltar.
+  if (item.positioning === 'viewport') {
+    const maxY = Math.max(0, NATIVE_VIEWPORT_H - heightPx / scale)
+    y = Math.min(Math.max(y, 0), maxY)
   }
 
   return { x: Math.round(x * 100) / 100, y: Math.round(y) }
@@ -169,7 +192,17 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
   }
 
   function updateOverlay(id: string, patch: Partial<MediaOverlay>) {
-    const list = (dataRef.current[selectedPage] || []).map((o) => (o.id === id ? { ...o, ...patch } : o))
+    const list = (dataRef.current[selectedPage] || []).map((o) => {
+      if (o.id !== id) return o
+      const next = { ...o, ...patch }
+      // Rede de segurança para os caminhos que não passam pelo drag: trocar o
+      // posicionamento para Viewport ou digitar o Y na mão também podem jogar
+      // o item para fora da janela.
+      if (next.positioning === 'viewport' && next.y > NATIVE_VIEWPORT_H) {
+        next.y = NATIVE_VIEWPORT_H
+      }
+      return next
+    })
     setPageOverlays(list)
   }
 
@@ -249,6 +282,8 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
       {/* Legenda */}
       <p className="text-foreground-muted text-xs mb-3">
         Arraste as mídias livremente no canvas. O fundo mostra a página real do site.
+        Mídias com posicionamento <strong className="text-foreground">Viewport</strong> ficam fixas
+        na tela, então valem só acima da linha laranja — que é onde a janela termina.
       </p>
 
       {/* Canvas + Sidebar */}
@@ -328,11 +363,31 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
               </div>
             ))}
 
+            {/* Dobra da janela — limite dos overlays "fixos na tela" */}
+            <div
+              style={{
+                position: 'absolute',
+                top: NATIVE_VIEWPORT_H * scale,
+                left: 0, right: 0, height: 0,
+                borderTop: '1px dashed rgba(255,176,80,0.75)',
+                pointerEvents: 'none', zIndex: 3,
+              }}
+            >
+              <span style={{
+                position: 'absolute', right: 4, top: -12, fontSize: 9,
+                color: 'rgba(255,176,80,0.9)', userSelect: 'none', whiteSpace: 'nowrap',
+              }}>
+                dobra da janela — mídias fixas na tela só valem acima daqui
+              </span>
+            </div>
+
             {/* Items */}
             {pageOverlays.map((item) => {
               const isSpotify = item.type === 'spotify'
               const ar = isSpotify ? 0 : (aspectRatios[item.src] || 1)
-              const spotifyHeightPx = isSpotify ? (item.height ?? 152) * scale : 0
+              const spotifyHeightPx = isSpotify
+                ? Math.max(item.height ?? SPOTIFY_MIN_HEIGHT, SPOTIFY_MIN_HEIGHT) * scale
+                : 0
               const { x, y, w, h } = toCanvasPos(item, canvasW, canvasH, ar)
               const finalH = isSpotify ? spotifyHeightPx : h
               const isSelected = selectedId === item.id
@@ -358,7 +413,9 @@ export default function OverlaysEditor({ data, onChange }: OverlaysEditorProps) 
                   onResizeStop={(_e, _dir, ref, _delta, pos) => {
                     const newW = (ref.offsetWidth / canvasW) * 100
                     const patch: Partial<typeof item> = { width: newW }
-                    if (isSpotify) patch.height = Math.round(ref.offsetHeight / scale)
+                    if (isSpotify) {
+                      patch.height = Math.max(SPOTIFY_MIN_HEIGHT, Math.round(ref.offsetHeight / scale))
+                    }
                     const newPos = fromCanvasPos(pos.x, pos.y, item, canvasW, canvasH, ref.offsetWidth, ref.offsetHeight)
                     updateOverlay(item.id, { ...newPos, ...patch })
                   }}

@@ -1,7 +1,9 @@
 /**
  * Pipeline de pré-processamento de mídia no browser, antes de subir ao Blob.
- * Imagens grandes são redimensionadas via Canvas; GIFs viram MP4 via FFmpeg WASM;
- * vídeos grandes são transcodificados pra H.264 1080p.
+ * Imagens grandes são redimensionadas via Canvas; GIFs opacos viram MP4 via
+ * FFmpeg WASM; vídeos grandes são transcodificados pra H.264 1080p.
+ *
+ * GIFs com transparência ficam de fora da conversão — ver `gifHasTransparency`.
  *
  * FFmpeg WASM (~30MB) só carrega quando o usuário escolhe GIF/vídeo.
  */
@@ -133,8 +135,61 @@ async function getFFmpeg(): Promise<FFmpegLike> {
 }
 
 /**
+ * Detecta se o GIF usa transparência, percorrendo os blocos do arquivo atrás de
+ * um Graphic Control Extension com o "transparent color flag" ligado.
+ *
+ * Varre todos os frames de propósito: o primeiro pode ser opaco e os seguintes
+ * não. Em GIF malformado assume que há transparência — errar para esse lado só
+ * custa um arquivo maior, enquanto o contrário achata o fundo pra cor sólida.
+ */
+export async function gifHasTransparency(file: File): Promise<boolean> {
+  const b = new Uint8Array(await file.arrayBuffer())
+
+  // Header (6 bytes) + Logical Screen Descriptor (7 bytes)
+  if (b.length < 13) return true
+  const lsdPacked = b[10]
+  let i = 13
+  if (lsdPacked & 0x80) i += 3 * (1 << ((lsdPacked & 0x07) + 1)) // Global Color Table
+
+  // Sub-blocos são length-prefixed e terminam num byte 0x00
+  const skipSubBlocks = () => {
+    while (i < b.length && b[i] !== 0x00) i += b[i] + 1
+    i++
+  }
+
+  while (i < b.length) {
+    const introducer = b[i++]
+
+    if (introducer === 0x3b) return false // Trailer — fim do arquivo
+
+    if (introducer === 0x21) {            // Extension
+      const label = b[i++]
+      // Graphic Control Extension: bloco de 4 bytes, bit 0 do packed field
+      if (label === 0xf9 && b[i] === 0x04 && (b[i + 1] & 0x01)) return true
+      skipSubBlocks()
+      continue
+    }
+
+    if (introducer === 0x2c) {            // Image Descriptor
+      const packed = b[i + 8]
+      i += 9
+      if (packed & 0x80) i += 3 * (1 << ((packed & 0x07) + 1)) // Local Color Table
+      i++                                 // LZW minimum code size
+      skipSubBlocks()
+      continue
+    }
+
+    return true                           // byte inesperado — não dá pra confiar
+  }
+
+  return false
+}
+
+/**
  * Converte GIF em MP4 (H.264 yuv420p). MP4 é geralmente 10-50× menor que GIF
  * e renderiza mais suave. Sem áudio (GIFs não têm).
+ *
+ * Só serve para GIF opaco: H.264 não tem canal alpha.
  */
 export async function convertGifToMp4(file: File, onProgress?: ProgressCallback): Promise<File> {
   onProgress?.({ stage: 'analyzing', percentage: 0, message: 'Carregando codificador…' })
@@ -248,6 +303,14 @@ export async function preprocessMedia(
   const kind = detectMediaKind(file)
 
   if (kind === 'gif') {
+    // H.264 não carrega canal alpha: converter um GIF transparente achata o
+    // fundo numa cor sólida (branco, no caso dos GIFs decorativos da artista).
+    // Nesses casos o arquivo sobe cru — nada de Canvas aqui, que achataria a
+    // animação num frame só.
+    if (await gifHasTransparency(file)) {
+      onProgress?.({ stage: 'done', percentage: 100, message: 'GIF transparente — enviado sem conversão' })
+      return { file, kind: 'image' }
+    }
     const mp4 = await convertGifToMp4(file, onProgress)
     return { file: mp4, kind: 'video' }
   }
