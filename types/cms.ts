@@ -114,6 +114,13 @@ export interface ApiResponse<T = void> {
 
 // ─── Media Overlays ─────────────────────────────────────────────────────
 
+/**
+ * Altura mínima do embed compacto do Spotify. Abaixo disso o próprio iframe
+ * corta os controles, então editor e site aplicam o mesmo piso — se divergirem,
+ * o canvas do admin passa a mentir sobre o resultado final.
+ */
+export const SPOTIFY_MIN_HEIGHT = 152
+
 export type OverlayMediaType = 'image' | 'video' | 'spotify'
 export type OverlayPositioning = 'page' | 'viewport'
 export type OverlayAnchor = 'tl' | 'tr' | 'bl' | 'br'

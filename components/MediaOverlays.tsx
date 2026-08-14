@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { useOverlays } from './OverlaysContext'
-import type { MediaOverlay } from '@/types/cms'
+import { SPOTIFY_MIN_HEIGHT, type MediaOverlay } from '@/types/cms'
 
 export default function MediaOverlays() {
   const router = useRouter()
@@ -37,13 +37,25 @@ function StaticOverlay({ item }: { item: MediaOverlay }) {
   if (item.type === 'spotify') {
     // MusicPlayer=40, Win98Scrollbar=30 — Spotify precisa aparecer acima dos dois
     const spotifyZ = Math.max(item.zIndex, 45)
+    const spotifyH = Math.max(item.height ?? SPOTIFY_MIN_HEIGHT, SPOTIFY_MIN_HEIGHT)
+
+    // O y é gravado em px absolutos, mas o player é `position: fixed` — numa
+    // janela mais baixa que a de quem editou, ele cai fora da tela. O min()
+    // prende o player à janela de quem está visitando, seja qual for a altura.
+    const clamped = `min(${item.y}px, calc(100vh - ${spotifyH}px - 8px))`
+    const verticalClamp =
+      item.anchor === 'tl' || item.anchor === 'tr'
+        ? { top: clamped }
+        : { bottom: clamped }
+
     return (
       <div
         className={rootClass}
         style={{
           ...positionStyle,
+          ...verticalClamp,
           width: `${item.width}vw`,
-          height: item.height ?? 152,
+          height: spotifyH,
           zIndex: spotifyZ,
         }}
       >

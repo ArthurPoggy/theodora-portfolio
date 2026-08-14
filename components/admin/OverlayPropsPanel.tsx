@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { MediaOverlay, OverlayAnchor, OverlayPositioning } from '@/types/cms'
+import { SPOTIFY_MIN_HEIGHT, type MediaOverlay, type OverlayAnchor, type OverlayPositioning } from '@/types/cms'
 import ImageUploader from './ImageUploader'
 
 interface OverlayPropsPanelProps {
@@ -151,9 +151,9 @@ export default function OverlayPropsPanel({ overlay, onChange }: OverlayPropsPan
         {isSpotify ? (
           <NumInput
             label="Altura (px)"
-            hint="152 = compacto, 352 = completo"
-            value={overlay.height ?? 152}
-            step={8} min={80} max={600}
+            hint={`${SPOTIFY_MIN_HEIGHT} = compacto, 352 = completo`}
+            value={overlay.height ?? SPOTIFY_MIN_HEIGHT}
+            step={8} min={SPOTIFY_MIN_HEIGHT} max={600}
             onChange={(height) => onChange({ height })}
           />
         ) : (
