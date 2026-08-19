@@ -45,7 +45,7 @@ function PageHeader({ label }: { label: string }) {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-fit mx-auto font-display text-5xl font-bold text-bg mb-10 bg-foreground px-8 py-3 rounded-xl"
+        className="w-fit mx-auto font-display text-5xl font-bold text-bg mb-10 bg-pastel px-8 py-3 rounded-xl"
       >
         <TypeWriter text={label} />
       </motion.h1>
@@ -68,7 +68,7 @@ function GalleryView({ page }: { page: DynamicPage }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.35 }}
-          className="w-fit mx-auto text-bg text-base text-center bg-foreground px-5 py-2 rounded-xl -mt-4 mb-6"
+          className="w-fit mx-auto text-bg text-base text-center bg-pastel px-5 py-2 rounded-xl -mt-4 mb-6"
         >
           {page.description}
         </motion.p>
