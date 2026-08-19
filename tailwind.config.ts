@@ -18,7 +18,7 @@ const config: Config = {
           light: '#cfc0fe',
           dark: '#9275e0',
         },
-        pastel: '#f5c6ff',
+        pastel: '#f8c4ff',   // tom exato dos quadrados de public/bg.png
         foreground: {
           DEFAULT: '#f5feff',
           muted: '#a0a0a0',

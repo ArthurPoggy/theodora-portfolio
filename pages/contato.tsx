@@ -13,7 +13,7 @@ export default function ContatoPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-fit mx-auto font-display text-5xl font-bold text-bg mb-3 bg-foreground px-8 py-3 rounded-xl"
+          className="w-fit mx-auto font-display text-5xl font-bold text-bg mb-3 bg-pastel px-8 py-3 rounded-xl"
         >
           Contato
         </motion.h1>
